@@ -1,0 +1,190 @@
+patient_id,patient_summary
+sigir-20141,"0. A 58-year-old African-American woman presents to the ER with episodic pressing/burning anterior chest pain that began two days earlier for the first time in her life.
+1. The pain started while she was walking, radiates to the back, and is accompanied by nausea, diaphoresis and mild dyspnea, but is not increased on inspiration.
+2. The latest episode of pain ended half an hour prior to her arrival.
+3. She is known to have hypertension and obesity.
+4. She denies smoking, diabetes, hypercholesterolemia, or a family history of heart disease.
+5. She currently takes no medications.
+6. Physical examination is normal.
+7. The EKG shows nonspecific changes.
+8. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201410,"0. A physician is called to see a 67-year-old woman who underwent cardiac catheterization via the right femoral artery earlier in the morning.
+1. She is now complaining of a cool right foot.
+2. Upon examination she has a pulsatile mass in her right groin with loss of distal pulses, and auscultation reveals a bruit over the point at which the right femoral artery was entered.
+3. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201413,"0. A 30-year-old generally healthy woman presents with shortness of breath that had started 2 hours before admission.
+1. She has had no health problems in the past besides 2 natural abortions.
+2. She had given birth to a healthy child 3 weeks before.
+3. On examination, she is apprehensive, tachypneic and tachycardic, her blood pressure is 110/70 and her oxygen saturation 92%.
+4. Otherwise, physical examination is unremarkable.
+5. Her chest x-ray and CBC are normal.
+6. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201415,"0. A 36-year-old woman presents to the emergency department with 12 weeks of amenorrhea, vaginal spotting that has increased since yesterday, lower abdominal tenderness, nausea and vomiting.
+1. The physical exam reveals overall tender abdomen, 18-week sized uterus, and cervical dilation of 2 cm.
+2. The complete blood count and biochemical profile are normal.
+3. Point of care pregnancy test with cut-off sensitivity of 25 mIU/ml Beta-HCG is negative.
+4. The ultrasound reports enlarged uterus (12 cm x 9 cm x 7 cms) with multiple cystic areas in the interior.
+5. The differential diagnosis includes vesicular mole vs fibroid degeneration.
+6. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201416,"0. A 28-year-old female with neck and shoulder pain and left hand and arm paresthesias three weeks after returning from a trip to California where she attended a stray animal recovery campaign.
+1. Her physical exam was unremarkable except for slight tremors and almost imperceptible spasticity.
+2. She was prescribed NSAIDS and a topical muscle relaxant.
+3. She was brought in to the ER three days later with spastic arm movements, sweating, increasing agitation and anxiety, malaise, difficultly swallowing and marked hydrophobia, and was immediately hospitalized.
+4. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201417,"0. A 48-year-old white male with history of common variable immunodeficiency (CVID) with acute abdominal pain, fever, dehydration, HR of 132 bpm, BP 80/40.
+1. The physical examination is remarkable for tenderness and positive Murphy sign.
+2. Abdominal ultrasound shows hepatomegaly and abundant free intraperitoneal fluid.
+3. Exploratory laparotomy reveals a ruptured liver abscess, which is then surgically drained.
+4. After surgery, the patient is taken to the ICU.
+5. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201418,"0. A 6-month-old male infant has a urine output of less than 0.2 mL/kg/hr shortly after undergoing major surgery.
+1. On examination, he has generalized edema.
+2. His blood pressure is 115/80 mm Hg, his pulse is 141/min, and his respirations are 18/min.
+3. His blood urea nitrogen is 33 mg/dL, and his serum creatinine is 1.3 mg/dL.
+4. Initial urinalysis shows specific gravity of 1.017.
+5. Microscopic examination of the urine sample reveals 1 WBC per high-power field (HPF), 18 RBCs per HPF, and 5 granular casts per HPF.
+6. His fractional excretion of sodium is 3.3%.
+7. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201419,"0. A 52-year-old African American man with a history of heavy smoking and drinking, describes progressive dysphagia that began several months ago.
+1. He first noticed difficulty swallowing meat.
+2. His trouble swallowing then progressed to include other solid foods, soft foods, and then liquids.
+3. He is able to locate the point where food is obstructed at the lower end of his sternum.
+4. He has lost a total of 25 pounds.
+5. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-20142,"0. An 8-year-old male presents in March to the ER with fever up to 39 C, dyspnea and cough for 2 days.
+1. He has just returned from a 5 day vacation in Colorado.
+2. Parents report that prior to the onset of fever and cough, he had loose stools.
+3. He denies upper respiratory tract symptoms.
+4. On examination he is in respiratory distress and has bronchial respiratory sounds on the left.
+5. A chest x-ray shows bilateral lung infiltrates.
+6. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201421,"0. A 21-year-old female is evaluated for progressive arthralgias and malaise.
+1. On examination she is found to have alopecia, a rash mainly distributed on the bridge of her nose and her cheeks, a delicate non-palpable purpura on her calves, and swelling and tenderness of her wrists and ankles.
+2. Her lab shows normocytic anemia, thrombocytopenia, a 4/4 positive ANA and anti-dsDNA.
+3. Her urine is positive for protein and RBC casts.
+4. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201425,"0. An 8-year-old boy fell from his bike striking his left temple on the pavement.
+1. There was no immediate loss of consciousness, and a brief examination at the scene noted his pupils were symmetrical, reactive to the light, and he was moving all four limbs.
+2. Half an hour after the fall the child became drowsy, pale, and vomited.
+3. He was transferred to the emergency department.
+4. Upon arrival the heart rate was 52/min, blood pressure of 155/98.
+5. The Glasgow Coma Scale (GCS) was 6/15, the pupils were asymmetrical and movement of the right upper and lower extremities was impaired.
+6. The neurosurgical team advised deferring the CT scan in favor of initiating immediate treatment.
+7. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201426,"0. A group of 14 humanitarian service workers is preparing a trip to the Amazon Rainforest region in Brazil.
+1. All the members of the group have traveled on multiple occasions and have up-to-date vaccine certificates.
+2. Malaria Chemoprophylaxis is indicated but three of the women are in different stages of pregnancy.
+3. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201429,"0. A 51-year-old woman is seen in clinic for advice on osteoporosis.
+1. She has a past medical history of significant hypertension and diet-controlled diabetes mellitus.
+2. She currently smokes 1 pack of cigarettes per day.
+3. She was documented by previous LH and FSH levels to be in menopause within the last year.
+4. She is concerned about breaking her hip as she gets older and is seeking advice on osteoporosis prevention.
+5. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201430,"0. A 72-year-old man complains of increasing calf pain when walking uphill.
+1. The symptoms have gradually increased over the past 3 months.
+2. The patient had an uncomplicated myocardial infarction 2 years earlier and a transient ischemic attack 6 months ago.
+3. Over the past month, his blood pressure has worsened despite previous control with diltiazem, hydrochlorothiazide, and propranolol.
+4. His is currently taking isosorbide dinitrate, hydrochlorothiazide, and aspirin.
+5. On physical examination, his blood pressure is 151/91 mm Hg, and his pulse is 67/min.
+6. There is a right carotid bruit.
+7. His lower extremities are slightly cool to the touch and have diminished pulses at the dorsalis pedis.
+8. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-20146,"0. 64-year-old obese female with diagnosis of diabetes mellitus and persistently elevated HbA1c.
+1. She is reluctant to see a nutritionist and is not compliant with her diabetes medication or exercise.
+2. She complains of a painful skin lesion on the left lower leg.
+3. She has tried using topical lotions and creams but the lesion has increased in size and is now oozing.
+4. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-20147,"0. A 26-year-old obese woman with a history of bipolar disorder complains that her recent struggles with her weight and eating have caused her to feel depressed.
+1. She states that she has recently had difficulty sleeping and feels excessively anxious and agitated.
+2. She also states that she has had thoughts of suicide.
+3. She often finds herself fidgety and unable to sit still for extended periods of time.
+4. Her family tells her that she is increasingly irritable.
+5. Her current medications include lithium carbonate and zolpidem.
+6. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-20148,"0. A 62-year-old man sees a neurologist for progressive memory loss and jerking movements of the lower extremities.
+1. Neurologic examination confirms severe cognitive deficits and memory dysfunction.
+2. An electroencephalogram shows generalized periodic sharp waves.
+3. Neuroimaging studies show moderately advanced cerebral atrophy.
+4. A cortical biopsy shows diffuse vacuolar changes of the gray matter with reactive astrocytosis but no inflammatory infiltration.
+5. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-20151,"0. A 44 yo male is brought to the emergency room after multiple bouts of vomiting that has a ""coffee ground"" appearance.
+1. His heart rate is 135 bpm and blood pressure is 70/40 mmHg.
+2. Physical exam findings include decreased mental status and cool extremities.
+3. He receives a rapid infusion of crystalloid solution followed by packed red blood cell transfusion and is admitted to the ICU for further care.
+4. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201510,"0. A 38 year old woman complains of severe premenstrual and menstrual pelvic pain, heavy, irregular periods and occasional spotting between periods.
+1. Past medical history remarkable for  two years of infertility treatment and an ectopic pregnancy at age 26.
+2. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201513,"0. A 5-year-old boy presents to the emergency department with complaints of progressively worsening dysphagia, drooling, fever and vocal changes.
+1. He is toxic-appearing, and leans forward while sitting on his mother's lap.
+2. He is drooling and speaks with a muffled ""hot potato"" voice.
+3. The parents deny the possibility of foreign body ingestion or trauma, and they report that they are delaying some of his vaccines.
+4. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201514,"0. A 27-year-old woman at 11 weeks gestation in her second pregnancy is found to have a hemoglobin (Hb) of 9.0 g/dL, white blood cell count 6.3 x 109/L, platelet count 119 x 109/L, mean corpuscular volume 109 fL.
+1. Further investigations reveal mild iron deficiency.
+2. She already receives iron supplementation.
+3. The obstetrician repeats the complete blood cell count 2 weeks later.
+4. The Hb is 8.9 g/dL, WBC count 7.1 x 109/L, and platelets 108 x 109/L.
+5. She describes difficulty swallowing.
+6. A reticulocyte count is performed and found elevated at 180 x 109/L.
+7. The obstetrician requests a hematology consult.
+8. The following additional results were found: Negative DAT, normal clotting screen, elevated LDH (2000 IU/L), normal urea and electrolytes, normal alanine aminotransferase (ALT), anisocytosis, poikilocytosis, no fragments, no agglutination, polychromasia and presence of hemosiderin in the urine.
+9. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201516,"0. A 4 year old boy presents to the emergency room with wheezing.
+1. He has had a history of allergic rhinitis, but no history of wheezing.
+2. His mother reports that 5 hours ago patient was playing in the backyard sandbox when she heard him suddenly start coughing.
+3. The coughing lasted only moments, but he has been audibly wheezing since.
+4. Mother was concerned, because his breathing has not returned to normal, so she brought him to the ED.
+5. On exam, the child is playful and well appearing.
+6. Wheezing is heard in the mid-right chest area.
+7. O2 sats are 100% on room air.
+8. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-20152,"0. A 62 yo male presents with four days of non-productive cough and one day of fever.
+1. He is on immunosuppressive medications, including prednisone.
+2. He is admitted to the hospital, and his work-up includes bronchoscopy with bronchoalveolar lavage (BAL).
+3. BAL fluid examination reveals owl's eye inclusion bodies in the nuclei of infection cells.
+4. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201520,"0. An 89-year-old man was brought to the emergency department by his wife and son after six months of progressive changes in cognition and personality.
+1. He began to have poor memory, difficulty expressing himself, and exhibited unusual behaviors, such as pouring milk onto the table and undressing immediately after getting dressed.
+2. He is unable to dress, bathe, use the toilet, or walk independently.
+3. On examination the patient's temperature was 36.5C (97.7F), the heart rate 61 bpm in an irregular rhythm, the blood pressure 144/78 mm Hg, and the respiratory rate 18 bpm.
+4. The patient was alert and oriented to self and city but not year.
+5. He frequently interrupted the examiner.
+6. He repeatedly reached out to grab things in front of him, including the examiner's tie and face.
+7. He could not spell the word ""world"" backward, could not follow commands involving multiple steps and was unable to perform simple calculations.
+8. His speech was fluent, but he often used similar-sounding word substitutions.
+9. He could immediately recall three out of three words but recalled none of them after 5 minutes.
+10. Examination of the cranial nerves revealed clinically significant paratonic rigidity.
+11. Myoclonic jerks were seen in the arms, with symmetrically brisk reflexes.
+12. The reflexes in the legs were normal.
+13. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201521,"0. A 32-year-old male presents to your office complaining of diarrhea, abdominal cramping and flatulence.
+1. Stools are greasy and foul-smelling.
+2. He also has loss of appetite and malaise.
+3. He recently returned home from a hiking trip in the mountains where he drank water from natural sources.
+4. An iodine-stained stool smear revealed ellipsoidal cysts with smooth, well-defined walls and 2+ nuclei.
+5. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201522,"0. A 65-year-old male with a history of tuberculosis has started to complain of productive cough with tinges of blood.
+1. Chest X-ray reveals a round opaque mass within a cavity in his left upper lobe.
+2. The spherical mass moved in the cavity during supine and prone CT imaging.
+3. Culture of the sputum revealed an organism with septated, low-angle branching hyphae that had straight, parallel walls.
+4. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201523,"0. An 18-year-old male returning from a recent vacation in Asia presents to the ER with a sudden onset of high fever, chills, facial flushing, epistaxis and severe headache and joint pain.
+1. His complete blood count reveals leukopenia, increased hematocrit concentration and thrombocytopenia.
+2. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-201524,"0. A 31 yo male with no significant past medical history presents with productive cough and chest pain.
+1. He reports developing cold symptoms one week ago that were improving until two days ago, when he developed a new fever, chills, and worsening cough.
+2. He has right-sided chest pain that is aggravated by coughing.
+3. His wife also had cold symptoms a week ago but is now feeling well.
+4. Vitals signs include temperature 103.4, pulse 105, blood pressure 120/80, and respiratory rate 15.
+5. Lung exam reveals expiratory wheezing, decreased breath sounds, and egophany in the left lower lung field.
+6. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-20153,"0. A 65 yo male with no significant history of cardiovascular disease presents to the emergency room with acute onset of shortness of breath, tachypnea, and left-sided chest pain that worsens with inspiration.
+1. Of note, he underwent a right total hip replacement two weeks prior to presentation and  was unable to begin physical therapy and rehabilitation for several days following the surgery due to poor pain management.
+2. Relevant physical exam findings include a respiratory rate of 35 and right calf pain.
+3. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."
+sigir-20158,"0. A 10 yo boy with nighttime snoring, pauses in breathing, and restlessness with nighttime awakenings.
+1. No history of headache or night terrors.
+2. The boy's teacher recently contacted his parents because she was concerned about his declining grades, lack of attention, and excessive sleepiness during class.
+3. The patient will provide informed consent, and will comply with the trial protocol without any practical issues."

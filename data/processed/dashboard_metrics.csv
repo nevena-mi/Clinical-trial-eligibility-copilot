@@ -1,0 +1,11 @@
+metric_name,value,numerator,denominator,unit,definition
+Assessments processed,120.0,120.0,120.0,count,Successful criterion-level LLM assessments.
+Exact agreement,0.725,87.0,120.0,percent,Predicted label exactly matches the expert reference label.
+Unsafe MET rate,0.058823529411764705,1.0,17.0,percent,Reference NOT_MET assessments incorrectly predicted as MET; lower is safer.
+UNKNOWN recall,0.9230769230769231,48.0,52.0,percent,Reference UNKNOWN assessments correctly returned as UNKNOWN.
+Review rate,0.5916666666666667,71.0,120.0,percent,Predictions labelled UNKNOWN or NOT_APPLICABLE and routed for clarification or contextual review.
+Median latency,1.01,,,seconds,Median API response time per assessment.
+Mean latency,1.1265833333333333,,,seconds,Average API response time per assessment.
+P95 latency,1.5494999999999994,,,seconds,95th-percentile API response time per assessment.
+Total estimated API cost,0.255648,,,USD,Estimated GPT-4.1 text-token cost for this 120-assessment run.
+Estimated cost per assessment,0.0021303999999999997,,,USD,Estimated GPT-4.1 text-token cost per successful assessment.

@@ -1,0 +1,12 @@
+ground_truth_label,predicted_label,criterion_type,count
+MET,UNKNOWN,exclusion,7
+NOT_APPLICABLE,UNKNOWN,exclusion,7
+NOT_APPLICABLE,NOT_MET,exclusion,4
+NOT_APPLICABLE,MET,exclusion,3
+UNKNOWN,NOT_MET,inclusion,3
+NOT_APPLICABLE,UNKNOWN,inclusion,2
+NOT_MET,UNKNOWN,exclusion,2
+NOT_MET,UNKNOWN,inclusion,2
+MET,NOT_MET,exclusion,1
+NOT_MET,MET,inclusion,1
+UNKNOWN,MET,inclusion,1
