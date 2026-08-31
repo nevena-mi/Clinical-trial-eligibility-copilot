@@ -1,0 +1,480 @@
+{
+  "name": "eligibility_review_queue - POC",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "da814b0f-d890-41ec-8476-e3ff232e49e3",
+              "name": "received_at",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "3ba98751-627e-4569-9580-e358278322f4",
+              "name": "queue_id",
+              "value": "={{ $json.body.response_id || $json.body.source_annotation_id }}",
+              "type": "string"
+            },
+            {
+              "id": "cc5b1d64-cd6f-43a1-a555-f3928e44df8b",
+              "name": "route",
+              "value": "={{ $json.body.ground_truth_label === 'NOT_MET' && $json.body.predicted_label === 'MET' ? 'SAFETY_ESCALATION_EVALUATION_ONLY' : ['UNKNOWN', 'NOT_APPLICABLE'].includes($json.body.predicted_label) ? 'HUMAN_REVIEW' : 'NO_ROUTINE_QUEUE' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -256,
+        0
+      ],
+      "id": "a0f57acd-2ef0-4a45-9aea-dad8cadfcdb6",
+      "name": "Classify review route"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2e8b27a0-7ec0-4a86-b5d5-a72e4c371a7c",
+              "leftValue": "={{ $json.route }}",
+              "rightValue": "NO_ROUTINE_QUEUE",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "b759bb05-febd-427c-b5a5-38cac6cf0bf5",
+      "name": "Queue required?"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  route: $('Classify review route').item.json.route,\n  queue_status: 'OPEN',\n  queue_id: $('Classify review route').item.json.queue_id,\n  message: 'Synthetic assessment routed to the human-review queue.'\n} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        576,
+        -96
+      ],
+      "id": "a25d9ad0-f3c8-4950-ae0c-b25232db9c85",
+      "name": "Confirm review queued"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  route: $json.route,\n  queue_status: 'NOT_QUEUED',\n  queue_id: $json.queue_id,\n  message: 'No routine review condition triggered.'\n} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        160,
+        96
+      ],
+      "id": "89cba15b-3dc2-45ff-bca0-1d38379345e5",
+      "name": "Confirm no queue needed"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "eligibility-review-router",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -464,
+        0
+      ],
+      "id": "0829c986-a484-42f4-a55e-701274a54d7a",
+      "name": "Receive screening result",
+      "webhookId": "538fdda4-e3c6-4036-ad1e-00f59e30ab0f"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "y3D72PnUIRw4JabL",
+          "mode": "list",
+          "cachedResultName": "eligibility_review_queue",
+          "cachedResultUrl": "/projects/egXxY1lqBMZnvqsi/datatables/y3D72PnUIRw4JabL"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "source_annotation_id": "={{ $json.body.source_annotation_id }}",
+            "queue_id": "={{ $json.queue_id }}",
+            "received_at": "={{ $json.received_at }}",
+            "route": "={{ $json.route }}",
+            "review_reason": "={{ $json.route === 'SAFETY_ESCALATION_EVALUATION_ONLY' ? 'Evaluation-only safety escalation: reference NOT_MET but model predicted MET.' : 'Model returned UNKNOWN or NOT_APPLICABLE; coordinator review required.' }}",
+            "patient_id": "={{ $json.body.patient_id }}",
+            "trial_id": "={{ $json.body.trial_id }}",
+            "criterion_id": "={{ $json.body.criterion_id }}",
+            "criterion_type": "={{ $json.body.criterion_type }}",
+            "predicted_label": "={{ $json.body.predicted_label }}",
+            "ground_truth_label": "={{ $json.body.ground_truth_label }}",
+            "rationale": "={{ $json.body.rationale }}",
+            "model": "={{ $json.body.model }}",
+            "prompt_version": "={{ $json.body.prompt_version }}",
+            "queue_status": "OPEN",
+            "evidence_sentence_ids": "={{ JSON.stringify($json.body.evidence_sentence_ids ?? []) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "queue_id",
+              "displayName": "queue_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "received_at",
+              "displayName": "received_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "route",
+              "displayName": "route",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "review_reason",
+              "displayName": "review_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "source_annotation_id",
+              "displayName": "source_annotation_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "patient_id",
+              "displayName": "patient_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "trial_id",
+              "displayName": "trial_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "criterion_id",
+              "displayName": "criterion_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "criterion_type",
+              "displayName": "criterion_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "predicted_label",
+              "displayName": "predicted_label",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ground_truth_label",
+              "displayName": "ground_truth_label",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "rationale",
+              "displayName": "rationale",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "evidence_sentence_ids",
+              "displayName": "evidence_sentence_ids",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "model",
+              "displayName": "model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prompt_version",
+              "displayName": "prompt_version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "queue_status",
+              "displayName": "queue_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        -96
+      ],
+      "id": "969aef66-508f-4ed0-b21c-34c1dc2077db",
+      "name": "Create review-queue record"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "3cc1e190-c170-808f-b805-d68e6651f84c",
+          "mode": "list",
+          "cachedResultName": "Clinical-trial eligibility review queue — synthetic POC",
+          "cachedResultUrl": "https://app.notion.com/p/3cc1e190c170808fb805d68e6651f84c"
+        },
+        "title": "={{ $('Classify review route').item.json.body.patient_id + ' | ' + $('Classify review route').item.json.body.trial_id + ' | ' + $('Classify review route').item.json.body.criterion_id }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Queue status|select",
+              "selectValue": "OPEN"
+            },
+            {
+              "key": "Route|select",
+              "selectValue": "={{ $('Classify review route').item.json.route }}"
+            },
+            {
+              "key": "Patient ID|rich_text",
+              "textContent": "={{ $('Classify review route').item.json.body.patient_id }}"
+            },
+            {
+              "key": "Trial ID|rich_text",
+              "textContent": "={{ $('Classify review route').item.json.body.trial_id }}"
+            },
+            {
+              "key": "Criterion ID|rich_text",
+              "textContent": "={{ $('Classify review route').item.json.body.criterion_id }}"
+            },
+            {
+              "key": "Predicted label|select",
+              "selectValue": "={{ $('Classify review route').item.json.body.predicted_label }}"
+            },
+            {
+              "key": "Ground-truth label|select",
+              "selectValue": "={{ $('Classify review route').item.json.body.ground_truth_label }}"
+            },
+            {
+              "key": "Rationale|rich_text",
+              "textContent": "={{ $('Classify review route').item.json.body.rationale }}"
+            },
+            {
+              "key": "Review reason|rich_text",
+              "textContent": "={{ $('Classify review route').item.json.route === 'SAFETY_ESCALATION_EVALUATION_ONLY' ? 'Evaluation-only safety escalation: reference NOT_MET but model predicted MET.' : 'Model returned UNKNOWN or NOT_APPLICABLE; coordinator review required.' }}"
+            },
+            {
+              "key": "Received at|rich_text",
+              "textContent": "={{ $('Classify review route').item.json.received_at }}"
+            },
+            {
+              "key": "Queue ID|rich_text",
+              "textContent": "={{ $('Classify review route').item.json.queue_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        -96
+      ],
+      "id": "2f6c03f6-3a99-4625-8d67-83a8d3af0ebb",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "WIr612ahiWYtoWk2",
+          "name": "Notion account 26"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Classify review route": {
+      "main": [
+        [
+          {
+            "node": "Queue required?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Queue required?": {
+      "main": [
+        [
+          {
+            "node": "Create review-queue record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Confirm no queue needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive screening result": {
+      "main": [
+        [
+          {
+            "node": "Classify review route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create review-queue record": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Confirm review queued",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e6720d75-1085-4858-a8f4-b15cd8a5877d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "00cafa1eb8a383ac595b6bbf54c5f8acd05d9d1462911bd4a0edac031509b829"
+  },
+  "id": "1YECh45GSujxZgAL",
+  "tags": []
+}

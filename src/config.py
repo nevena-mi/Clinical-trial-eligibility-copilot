@@ -22,7 +22,7 @@ def _as_bool(value: str) -> bool:
     return value.strip().lower() in {"1", "true", "yes"}
 
 OPENAI_API_KEY = _required_env("OPENAI_API_KEY")
-DEFAULT_SCREENING_MODEL = os.getenv("SCREENING_MODEL", "gpt-4o-mini")
+DEFAULT_SCREENING_MODEL = os.getenv("SCREENING_MODEL", "gpt-4.1")
 SCREENING_TEMPERATURE = float(os.getenv("SCREENING_TEMPERATURE", "0"))
 PROMPT_VERSION = os.getenv("PROMPT_VERSION", "v2_abstention_rules")
 STORE_OPENAI_RESPONSES = _as_bool(os.getenv("STORE_OPENAI_RESPONSES", "false"))

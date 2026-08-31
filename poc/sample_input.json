@@ -1,0 +1,14 @@
+{
+  "source_annotation_id": 463,
+  "patient_id": "sigir-201425",
+  "trial_id": "NCT00282269",
+  "criterion_id": "CRIT_042",
+  "criterion_type": "exclusion",
+  "predicted_label": "UNKNOWN",
+  "ground_truth_label": "UNKNOWN",
+  "evidence_sentence_ids": [],
+  "rationale": "The patient summary does not specify the time of randomization relative to injury.",
+  "model": "gpt-4.1",
+  "prompt_version": "v2_abstention_rules",
+  "response_id": "poc-unknown-001"
+}
