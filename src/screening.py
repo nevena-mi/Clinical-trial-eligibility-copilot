@@ -7,7 +7,7 @@ from src.config import (
     PROMPT_VERSION,
     SCREENING_TEMPERATURE,
     STORE_OPENAI_RESPONSES,
-    openai_client,
+    get_openai_client,
 )
 
 from langsmith import traceable
@@ -110,6 +110,7 @@ def screen_one_criterion(case: dict, model_name: str | None = None) -> tuple[dic
     selected_model = model_name or DEFAULT_SCREENING_MODEL
     payload = {field: case[field] for field in required_fields}
 
+    openai_client = get_openai_client()
     started = perf_counter()
     response = openai_client.responses.create(
         model=selected_model,
