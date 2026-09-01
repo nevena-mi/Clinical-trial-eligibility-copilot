@@ -32,25 +32,36 @@ Receive screening result
 
 ## Input
 
-The webhook receives a JSON screening result containing, among other fields:
+The webhook receives a JSON screening result. Live Streamlit submissions contain:
 
-- `source_annotation_id`
+- `evaluation_mode: false`
 - `patient_id`
+- `patient_summary`
 - `trial_id`
+- `trial_title`
 - `criterion_id`
 - `criterion_type`
+- `criterion_text`
 - `predicted_label`
-- `ground_truth_label`
 - `rationale`
 - `evidence_sentence_ids`
 - `model`
 - `prompt_version`
+- `response_id`
 
-`poc/sample_input.json` contains a representative example.
+Dataset submissions may also contain `source_annotation_id`. Live submissions
+do not contain `ground_truth_label`. The `ground_truth_label` field and
+`evaluation_mode: true` are reserved for explicitly marked evaluation payloads.
+The synthetic MVP context lets a coordinator inspect the criterion and the
+cited patient-summary sentences. These fields are carried in the queue payload;
+the current increment does not add new Notion property mappings.
+
+`poc/sample_input.json` contains a representative evaluation example.
 
 ## Routing logic
 
 The **Classify review route** node assigns a route based on the screening result.
+The safety-escalation rule is evaluated only when `evaluation_mode` is `true`.
 
 | Condition | Route | Queue required |
 | --- | --- | --- |
@@ -69,7 +80,10 @@ For queued cases, the workflow:
 3. Sets the queue status to `OPEN`.
 4. Returns a JSON confirmation to the webhook caller.
 
-The Notion record includes the review case title, queue status, route, patient ID, trial ID, criterion ID, predicted label, rationale, evidence references, model, prompt version, and queue ID.
+The Notion record includes the review case title, queue status, route, patient ID,
+trial ID, criterion ID, predicted label, rationale, evidence references, model,
+prompt version, and queue ID. Ground truth is included only for explicitly marked
+evaluation payloads and is omitted from live records.
 
 ## Evidence
 
@@ -87,14 +101,19 @@ Screenshots in `poc/screenshots/` show:
 3. Share the Notion review-queue database with that connection.
 4. Set the Webhook node response mode to **Using Respond to Webhook Node**.
 5. In test mode, click **Listen for test event** in the Webhook node.
-6. Send the example payload from `poc/sample_input.json` to the displayed test URL.
+6. Send the example evaluation payload from `poc/sample_input.json` to the displayed test URL.
 7. Verify that a qualifying case creates an n8n queue record and a Notion page.
-8. Send a non-qualifying case and verify that it receives the no-queue response.
+8. Send a live-style payload with `evaluation_mode: false` and no ground-truth fields.
+9. Verify that the live record contains no ground-truth value and receives the expected route.
+10. Send a non-qualifying case and verify that it receives the no-queue response.
 
 ## Limits versus production
 
 - The POC uses public synthetic data only.
 - The test webhook URL is not a production integration endpoint.
 - Notion is used as a simple demonstration queue, not a validated clinical workflow system.
-- There is no authentication, role-based reviewer assignment, SLA management, duplicate prevention, audit-log retention policy, or secure clinical-system integration.
+- There is no authentication, role-based reviewer assignment, SLA management, server-side idempotency, audit-log retention policy, or secure clinical-system integration.
+- Production integrations should normally use authorised source-system
+  references or deep links and minimise copied patient information, with
+  approved access controls.
 - Human review remains mandatory before any clinical action.

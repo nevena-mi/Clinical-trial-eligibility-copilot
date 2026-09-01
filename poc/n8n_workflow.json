@@ -20,7 +20,7 @@
             {
               "id": "cc5b1d64-cd6f-43a1-a555-f3928e44df8b",
               "name": "route",
-              "value": "={{ $json.body.ground_truth_label === 'NOT_MET' && $json.body.predicted_label === 'MET' ? 'SAFETY_ESCALATION_EVALUATION_ONLY' : ['UNKNOWN', 'NOT_APPLICABLE'].includes($json.body.predicted_label) ? 'HUMAN_REVIEW' : 'NO_ROUTINE_QUEUE' }}",
+              "value": "={{ $json.body.evaluation_mode === true && $json.body.ground_truth_label === 'NOT_MET' && $json.body.predicted_label === 'MET' ? 'SAFETY_ESCALATION_EVALUATION_ONLY' : ['UNKNOWN', 'NOT_APPLICABLE'].includes($json.body.predicted_label) ? 'HUMAN_REVIEW' : 'NO_ROUTINE_QUEUE' }}",
               "type": "string"
             }
           ]
@@ -139,12 +139,15 @@
             "criterion_id": "={{ $json.body.criterion_id }}",
             "criterion_type": "={{ $json.body.criterion_type }}",
             "predicted_label": "={{ $json.body.predicted_label }}",
-            "ground_truth_label": "={{ $json.body.ground_truth_label }}",
+            "ground_truth_label": "={{ $json.body.evaluation_mode === true ? $json.body.ground_truth_label : undefined }}",
             "rationale": "={{ $json.body.rationale }}",
             "model": "={{ $json.body.model }}",
             "prompt_version": "={{ $json.body.prompt_version }}",
             "queue_status": "OPEN",
-            "evidence_sentence_ids": "={{ JSON.stringify($json.body.evidence_sentence_ids ?? []) }}"
+            "evidence_sentence_ids": "={{ JSON.stringify($json.body.evidence_sentence_ids ?? []) }}",
+            "patient_summary": "={{ $json.body.patient_summary }}",
+            "trial_title": "={{ $json.body.trial_title }}",
+            "criterion_text": "={{ $json.body.criterion_text }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -307,6 +310,36 @@
               "type": "string",
               "readOnly": false,
               "removed": false
+            },
+            {
+              "id": "patient_summary",
+              "displayName": "patient_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "trial_title",
+              "displayName": "trial_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "criterion_text",
+              "displayName": "criterion_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -362,7 +395,7 @@
             },
             {
               "key": "Ground-truth label|select",
-              "selectValue": "={{ $('Classify review route').item.json.body.ground_truth_label }}"
+              "selectValue": "={{ $('Classify review route').item.json.body.evaluation_mode === true ? $('Classify review route').item.json.body.ground_truth_label : undefined }}"
             },
             {
               "key": "Rationale|rich_text",
@@ -379,6 +412,18 @@
             {
               "key": "Queue ID|rich_text",
               "textContent": "={{ $('Classify review route').item.json.queue_id }}"
+            },
+            {
+              "key": "Patient summary|rich_text",
+              "textContent": "={{ $('Classify review route').item.json.body.patient_summary }}"
+            },
+            {
+              "key": "Trial title|rich_text",
+              "textContent": "={{ $('Classify review route').item.json.body.trial_title }}"
+            },
+            {
+              "key": "Criterion text|rich_text",
+              "textContent": "={{ $('Classify review route').item.json.body.criterion_text }}"
             }
           ]
         },
@@ -470,7 +515,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "e6720d75-1085-4858-a8f4-b15cd8a5877d",
+  "versionId": "b718fe3e-48b7-40ee-a48e-9c3a18496983",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "00cafa1eb8a383ac595b6bbf54c5f8acd05d9d1462911bd4a0edac031509b829"

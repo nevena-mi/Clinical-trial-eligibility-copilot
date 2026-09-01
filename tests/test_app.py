@@ -1,12 +1,16 @@
 from pathlib import Path
 import sys
+from unittest.mock import Mock
 
 import dotenv
+from src import n8n_client
 
 
 def test_streamlit_page_loads_with_mvp_as_script_directory(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setattr(dotenv, "load_dotenv", lambda *_args, **_kwargs: None)
+    http_call = Mock()
+    monkeypatch.setattr(n8n_client, "urlopen", http_call)
 
     from streamlit.testing.v1 import AppTest
 
@@ -25,3 +29,4 @@ def test_streamlit_page_loads_with_mvp_as_script_directory(monkeypatch):
         == "Demonstration with public synthetic data only. Not for clinical or enrolment decisions."
         for notice in app.info
     )
+    http_call.assert_not_called()

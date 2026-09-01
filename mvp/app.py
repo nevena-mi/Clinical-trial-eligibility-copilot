@@ -25,6 +25,12 @@ from src.case_data import (
 )
 from src.config import ConfigurationError, DEFAULT_SCREENING_MODEL, PROCESSED_DIR
 from src.custom_case import prepare_custom_case
+from src.n8n_client import (
+    N8NConfigurationError,
+    N8NSubmissionError,
+    build_review_payload,
+    submit_review_payload,
+)
 from src.review_routing import route_screening_result
 from src.screening import screen_one_criterion
 
@@ -50,6 +56,7 @@ def _current_result(fingerprint: str):
     stored = st.session_state.get("screening_result")
     if stored and stored["fingerprint"] != fingerprint:
         st.session_state.pop("screening_result", None)
+        st.session_state.pop("queue_submission", None)
     return st.session_state.get("screening_result")
 
 
@@ -69,9 +76,15 @@ def _show_stored_error(fingerprint: str) -> None:
         st.error(error["message"])
 
 
-def _run_screening(case: dict, fingerprint: str, ground_truth_label: str | None = None) -> None:
+def _run_screening(
+    case: dict,
+    fingerprint: str,
+    ground_truth_label: str | None = None,
+    source_annotation_id: object | None = None,
+) -> None:
     st.session_state.pop("screening_result", None)
     st.session_state.pop("screening_error", None)
+    st.session_state.pop("queue_submission", None)
     try:
         result, metadata = screen_one_criterion(case, model_name=DEFAULT_SCREENING_MODEL)
         routing = route_screening_result(result["predicted_label"])
@@ -81,6 +94,8 @@ def _run_screening(case: dict, fingerprint: str, ground_truth_label: str | None 
             "result": result,
             "metadata": metadata,
             "routing": asdict(routing),
+            "case": case,
+            "source_annotation_id": source_annotation_id,
             "ground_truth_label": ground_truth_label,
         }
     except ConfigurationError:
@@ -95,6 +110,52 @@ def _run_screening(case: dict, fingerprint: str, ground_truth_label: str | None 
             fingerprint,
             "The screening request failed. No assessment result was produced.",
         )
+
+
+def _submit_stored_result(stored: dict) -> None:
+    try:
+        payload = build_review_payload(
+            stored["case"],
+            stored["result"],
+            stored["metadata"],
+            source_annotation_id=stored["source_annotation_id"],
+        )
+        response = submit_review_payload(payload)
+    except N8NConfigurationError:
+        st.session_state["queue_submission"] = {
+            "fingerprint": stored["fingerprint"],
+            "status": "error",
+            "message": "Review-queue submission is not configured.",
+        }
+    except (N8NSubmissionError, ValueError):
+        st.session_state["queue_submission"] = {
+            "fingerprint": stored["fingerprint"],
+            "status": "error",
+            "message": "The review-queue submission failed. The screening result was preserved.",
+        }
+    else:
+        st.session_state["queue_submission"] = {
+            "fingerprint": stored["fingerprint"],
+            "status": "success",
+            "response": asdict(response),
+        }
+    st.rerun()
+
+
+def _queue_button_allowed(
+    stored: dict | None,
+    fingerprint: str,
+    submission: dict | None,
+) -> bool:
+    if not stored or stored["fingerprint"] != fingerprint:
+        return False
+    if not stored["routing"]["queue_required"]:
+        return False
+    return not (
+        submission
+        and submission["fingerprint"] == fingerprint
+        and submission["status"] == "success"
+    )
 
 
 def _render_result(fingerprint: str) -> None:
@@ -120,6 +181,23 @@ def _render_result(fingerprint: str) -> None:
         f"Latency: {metadata['latency_seconds']} seconds | "
         f"Input tokens: {metadata['input_tokens']} | Output tokens: {metadata['output_tokens']}"
     )
+
+    if routing["queue_required"]:
+        submission = st.session_state.get("queue_submission")
+        if _queue_button_allowed(stored, fingerprint, submission):
+            if st.button("Send to human-review queue", key="queue_submit"):
+                _submit_stored_result(stored)
+                submission = st.session_state.get("queue_submission")
+        if submission and submission["fingerprint"] == fingerprint:
+            if submission["status"] == "success":
+                response = submission["response"]
+                st.success("Screening result sent to the human-review queue.")
+                st.write(f"**Queue route:** `{response['route']}`")
+                st.write(f"**Queue status:** `{response['queue_status']}`")
+                st.write(f"**Queue ID:** `{response['queue_id']}`")
+                st.write(f"**Queue message:** {response['message']}")
+            else:
+                st.error(submission["message"])
 
     if stored["mode"] == "Dataset case":
         with st.expander("Evaluation-only comparison"):
@@ -149,7 +227,12 @@ def _render_dataset_mode(assessments_df) -> None:
     fingerprint = _fingerprint({"mode": "Dataset case", "case": case})
     st.session_state["screening_mode"] = "Dataset case"
     if st.button("Run screening", type="primary", key="dataset_submit"):
-        _run_screening(case, fingerprint, str(assessment["ground_truth_label"]))
+        _run_screening(
+            case,
+            fingerprint,
+            str(assessment["ground_truth_label"]),
+            source_annotation_id=int(assessment["source_annotation_id"]),
+        )
     _render_result(fingerprint)
 
 

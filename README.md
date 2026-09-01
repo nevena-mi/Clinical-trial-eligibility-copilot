@@ -86,6 +86,10 @@ cp .env.example .env
 Add your own OpenAI API key and, if using monitoring, LangSmith API key. Never
 commit `.env`.
 
+For explicit human-review queue submission, set `N8N_REVIEW_WEBHOOK_URL` to the
+approved n8n webhook URL. The MVP reads this value only when the user clicks the
+queue-submission button.
+
 ## Run the Streamlit MVP
 
 ```bash
@@ -93,9 +97,19 @@ streamlit run mvp/app.py
 ```
 
 The MVP supports dataset cases from the processed synthetic data and custom
-synthetic cases. Screening runs only after an explicit button click. This
-increment displays results and evaluation-only comparisons but does not submit
-anything to n8n.
+synthetic cases. Screening runs only after an explicit button click. A successful
+`UNKNOWN` or `NOT_APPLICABLE` result can then be sent to n8n only after a second
+explicit click. `MET` and `NOT_MET` results are not submitted by the MVP.
+
+Synthetic MVP review submissions include the patient summary, trial title,
+criterion type and text, and cited evidence sentence IDs so the coordinator can
+inspect the criterion and the cited patient-summary sentences. Ground truth is
+evaluation-only and is never sent by Streamlit. The current increment does not
+add new Notion property mappings.
+
+Client-side duplicate prevention applies only to the current Streamlit session.
+Production use requires server-side idempotency using `queue_id` or another
+stable key.
 
 ## Run the screening POC
 
@@ -184,8 +198,13 @@ review.
 - The POC does not replace clinical judgment, protocol review, or informed
   consent processes.
 - Notion and n8n are demonstration components, not validated clinical systems.
-- The Streamlit MVP uses public synthetic data and does not submit review items
-  to n8n in this increment.
+- The Streamlit MVP uses public synthetic data and submits only explicit review
+  actions; it is not a production queue integration.
+- Production integrations should normally use authorised source-system
+  references or deep links instead of copying unnecessary patient data, with
+  approved access controls and data minimisation.
+- Client-side duplicate prevention is session-scoped; production requires
+  server-side idempotency.
 - Production use would require clinical validation, secure integration,
   privacy and security controls, access management, retention policies, and
   formal governance.
