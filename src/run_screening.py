@@ -34,6 +34,40 @@ RESULT_COLUMNS = [
     "error_message",
 ]
 
+
+def load_annotation_manifest(
+    manifest_path: Path,
+    assessments_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Load and validate a 15-row ordered annotation manifest."""
+    manifest = pd.read_csv(manifest_path)
+    required_columns = {"smoke_order", "source_annotation_id"}
+    missing = required_columns.difference(manifest.columns)
+    if missing:
+        raise ValueError(f"Manifest is missing required columns: {sorted(missing)}")
+    if len(manifest) != 15:
+        raise ValueError(f"Manifest must contain exactly 15 rows; found {len(manifest)}.")
+    for column in required_columns:
+        numeric = pd.to_numeric(manifest[column], errors="coerce")
+        if numeric.isna().any() or not numeric.eq(numeric.astype("int64")).all():
+            raise ValueError(f"Manifest {column} values must be integers.")
+        manifest[column] = numeric.astype("int64")
+    if manifest["source_annotation_id"].duplicated().any():
+        raise ValueError("Manifest source_annotation_id values must be unique.")
+    if sorted(manifest["smoke_order"].tolist()) != list(range(1, 16)):
+        raise ValueError("Manifest smoke_order values must be unique and contiguous from 1 to 15.")
+    known_ids = set(assessments_df["source_annotation_id"])
+    manifest_ids = set(manifest["source_annotation_id"])
+    if not manifest_ids.issubset(known_ids):
+        raise ValueError("Manifest contains unknown source_annotation_id values.")
+    indexed = assessments_df.set_index("source_annotation_id")
+    selected = indexed.loc[manifest.sort_values("smoke_order")["source_annotation_id"]].reset_index()
+    for column in {"patient_id", "trial_id", "criterion_id", "criterion_type"}.intersection(manifest.columns):
+        expected = manifest.sort_values("smoke_order")[column].tolist()
+        if selected[column].tolist() != expected:
+            raise ValueError(f"Manifest {column} values do not match reference assessments.")
+    return selected
+
 def save_results(records: list[dict], output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(records, columns=RESULT_COLUMNS).to_csv(output_path, index=False)
@@ -89,11 +123,14 @@ def run_screening(
     overwrite: bool,
     model_name: str,
     configuration_id: str | None = None,
+    annotation_manifest_path: Path | None = None,
 ) -> None:
     if limit is not None and limit < 1:
         raise ValueError("--limit must be at least 1.")
     if resume and overwrite:
         raise ValueError("Use either --resume or --overwrite, not both.")
+    if annotation_manifest_path is not None and limit is not None:
+        raise ValueError("--limit cannot be used with --annotation-manifest.")
 
     output_path = (
         output_path if output_path.is_absolute() else PROJECT_ROOT / output_path
@@ -121,6 +158,13 @@ def run_screening(
         load_reference_assessments(PROCESSED_DIR),
         expected_rows=EXPECTED_EVALUATION_ROWS,
     )
+    if annotation_manifest_path is not None:
+        manifest_path = (
+            annotation_manifest_path
+            if annotation_manifest_path.is_absolute()
+            else PROJECT_ROOT / annotation_manifest_path
+        ).resolve()
+        assessments_df = load_annotation_manifest(manifest_path, assessments_df)
 
     if output_path.exists() and not resume and not overwrite:
         raise FileExistsError(
@@ -140,6 +184,17 @@ def run_screening(
             reasoning_effort=selected_reasoning,
             explicit_configuration=configuration_id is not None,
         )
+        if annotation_manifest_path is not None:
+            manifest_ids = set(assessments_df["source_annotation_id"])
+            existing_ids = set(existing_df["source_annotation_id"].dropna())
+            if not existing_ids.issubset(manifest_ids):
+                raise ValueError("Cannot resume: output contains rows outside the annotation manifest.")
+            manifest_order = dict(
+                zip(assessments_df["source_annotation_id"], range(len(assessments_df)))
+            )
+            existing_df = existing_df.assign(
+                _manifest_order=existing_df["source_annotation_id"].map(manifest_order)
+            ).sort_values("_manifest_order").drop(columns="_manifest_order")
         records = existing_df.to_dict("records")
         completed_ids = set(
             existing_df.loc[existing_df["status"].eq("success"), "source_annotation_id"]
@@ -235,11 +290,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=None, help="CSV output path.")
     parser.add_argument("--model", default=None, help="Model ID; overrides SCREENING_MODEL for this run.")
     parser.add_argument("--configuration-id", help="Registered model configuration ID for a reproducible run.")
+    parser.add_argument("--annotation-manifest", type=Path, help="Ordered annotation manifest for selective execution.")
     parser.add_argument("--resume", action="store_true", help="Skip rows already saved with status=success.")
     parser.add_argument("--overwrite", action="store_true", help="Replace an existing output file.")
     args = parser.parse_args()
     if args.configuration_id and args.model is not None:
         parser.error("Use either --model or --configuration-id, not both.")
+    if args.annotation_manifest is not None and args.limit is not None:
+        parser.error("--limit cannot be used with --annotation-manifest.")
     if args.configuration_id == "gpt56sol-medium-v2" and args.output is None:
         parser.error("--configuration-id gpt56sol-medium-v2 requires an explicit --output path.")
     if args.configuration_id and args.output is not None:
@@ -265,4 +323,5 @@ if __name__ == "__main__":
         args.overwrite,
         args.model,
         args.configuration_id,
+        args.annotation_manifest,
     )

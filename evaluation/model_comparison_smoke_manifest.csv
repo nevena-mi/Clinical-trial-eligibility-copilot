@@ -1,0 +1,16 @@
+smoke_order,source_annotation_id,patient_id,trial_id,criterion_id,criterion_type,ground_truth_label,baseline_predicted_label,baseline_agreement,baseline_safety_flag,baseline_evidence_present,selection_reason
+1,977,sigir-201523,NCT02334514,CRIT_107,inclusion,NOT_MET,MET,False,True,True,mandatory: baseline unsafe MET case
+2,0,sigir-20141,NCT01397994,CRIT_002,inclusion,UNKNOWN,UNKNOWN,True,False,False,"coverage: agreement=agreement, criterion_type=inclusion, evidence=absent, ground_truth=UNKNOWN, outcome=review, unique_patients, unique_trials; diversity: new patient, new trial"
+3,31,sigir-20142,NCT02618655,CRIT_035,inclusion,NOT_MET,NOT_MET,True,False,True,"coverage: agreement=agreement, criterion_type=inclusion, evidence=present, ground_truth=NOT_MET, outcome=no-routine-queue, unique_patients, unique_trials; diversity: new patient, new trial"
+4,103,sigir-20146,NCT02512159,CRIT_058,inclusion,UNKNOWN,UNKNOWN,True,False,False,"coverage: agreement=agreement, criterion_type=inclusion, evidence=absent, ground_truth=UNKNOWN, outcome=review, unique_patients, unique_trials; diversity: new patient, new trial"
+5,125,sigir-20147,NCT00845988,CRIT_061,inclusion,MET,MET,True,False,True,"coverage: agreement=agreement, criterion_type=inclusion, evidence=present, ground_truth=MET, outcome=no-routine-queue, unique_patients, unique_trials; diversity: new patient, new trial"
+6,145,sigir-20148,NCT01519271,CRIT_065,exclusion,MET,UNKNOWN,False,False,False,"coverage: agreement=disagreement, criterion_type=exclusion, evidence=absent, ground_truth=MET, outcome=review, unique_patients, unique_trials; diversity: new patient, new trial"
+7,165,sigir-201410,NCT02097186,CRIT_008,exclusion,NOT_APPLICABLE,UNKNOWN,False,False,False,"coverage: agreement=disagreement, criterion_type=exclusion, ground_truth=NOT_APPLICABLE, outcome=review, unique_patients, unique_trials; diversity: new patient, new trial"
+8,479,sigir-201425,NCT02378311,CRIT_044,exclusion,NOT_APPLICABLE,UNKNOWN,False,False,False,"coverage: agreement=disagreement, criterion_type=exclusion, ground_truth=NOT_APPLICABLE, outcome=review, unique_patients, unique_trials; diversity: new patient, new trial"
+9,212,sigir-201413,NCT02264769,CRIT_010,exclusion,MET,NOT_MET,False,False,True,"coverage: criterion_type=exclusion, outcome=no-routine-queue, unique_patients, unique_trials; diversity: new patient, new trial"
+10,284,sigir-201416,NCT02238756,CRIT_019,exclusion,NOT_MET,NOT_MET,True,False,True,"coverage: criterion_type=exclusion, outcome=no-routine-queue, unique_patients, unique_trials; diversity: new patient, new trial"
+11,235,sigir-201415,NCT00277680,CRIT_014,inclusion,UNKNOWN,UNKNOWN,True,False,True,"coverage: unique_patients, unique_trials; diversity: new patient, new trial"
+12,304,sigir-201417,NCT01745731,CRIT_021,inclusion,MET,MET,True,False,True,"coverage: unique_patients, unique_trials; diversity: new patient, new trial"
+13,327,sigir-201418,NCT01260883,CRIT_026,inclusion,UNKNOWN,MET,False,False,True,"fill: deterministic diversity selection; new patient, new trial"
+14,339,sigir-201419,NCT00256529,CRIT_029,inclusion,MET,MET,True,False,True,"fill: deterministic diversity selection; new patient, new trial"
+15,381,sigir-201421,NCT00997100,CRIT_037,inclusion,MET,MET,True,False,True,"fill: deterministic diversity selection; new patient, new trial"

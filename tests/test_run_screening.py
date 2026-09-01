@@ -137,6 +137,44 @@ def test_candidate_prompt_conflict_fails_before_loading_data(tmp_path, monkeypat
         )
 
 
+def test_manifest_execution_replaces_full_cohort_and_preserves_order(tmp_path, monkeypatch):
+    assessments = pd.DataFrame([
+        {"source_annotation_id": 2, "patient_id": "P2", "trial_id": "T2", "trial_title": "Trial", "criterion_id": "C2", "criterion_type": "inclusion", "criterion_text": "Criterion", "ground_truth_label": "MET", "patient_summary": "0. Fact"},
+        {"source_annotation_id": 1, "patient_id": "P1", "trial_id": "T1", "trial_title": "Trial", "criterion_id": "C1", "criterion_type": "inclusion", "criterion_text": "Criterion", "ground_truth_label": "MET", "patient_summary": "0. Fact"},
+    ])
+    calls = []
+    screen = Mock(side_effect=lambda case, **_kwargs: (calls.append(case["source_annotation_id"]) or ({"predicted_label": "MET", "evidence_sentence_ids": [0], "rationale": "Supported."}, {"configuration_id": "legacy", "reasoning_effort": None, "model": "environment-model", "prompt_version": "v2", "response_id": "r", "latency_seconds": 0.1, "input_tokens": 1, "output_tokens": 1})))
+    monkeypatch.setattr(run_screening, "load_reference_assessments", lambda *_args: assessments)
+    monkeypatch.setattr(run_screening, "validate_locked_assessments", lambda df, **_kwargs: df)
+    monkeypatch.setattr(run_screening, "load_annotation_manifest", lambda *_args: assessments)
+    monkeypatch.setattr(run_screening, "build_screening_case", lambda row: dict(row))
+    monkeypatch.setattr(run_screening, "screen_one_criterion", screen)
+    monkeypatch.setattr(run_screening, "save_results", Mock())
+
+    run_screening.run_screening(
+        limit=None,
+        output_path=tmp_path / "smoke.csv",
+        resume=False,
+        overwrite=False,
+        model_name="environment-model",
+        annotation_manifest_path=tmp_path / "manifest.csv",
+    )
+
+    assert calls == [2, 1]
+
+
+def test_manifest_and_limit_are_rejected_at_execution_level(tmp_path):
+    with pytest.raises(ValueError, match="--limit"):
+        run_screening.run_screening(
+            limit=1,
+            output_path=tmp_path / "smoke.csv",
+            resume=False,
+            overwrite=False,
+            model_name="gpt-4.1",
+            annotation_manifest_path=tmp_path / "manifest.csv",
+        )
+
+
 def test_configuration_and_explicit_model_cannot_be_combined(monkeypatch):
     monkeypatch.setattr(
         sys,
