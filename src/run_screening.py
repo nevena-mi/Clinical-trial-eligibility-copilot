@@ -5,6 +5,11 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.case_data import (
+    build_screening_case,
+    load_reference_assessments,
+    validate_locked_assessments,
+)
 from src.config import (
     DEFAULT_SCREENING_MODEL,
     EXPECTED_EVALUATION_ROWS,
@@ -15,9 +20,6 @@ from src.config import (
 from src.screening import screen_one_criterion
 
 
-GROUND_TRUTH_PATH = PROCESSED_DIR / "ground_truth.csv"
-PATIENTS_PATH = PROCESSED_DIR / "patients.csv"
-CRITERIA_PATH = PROCESSED_DIR / "trial_criteria.csv"
 DEFAULT_OUTPUT_PATH = PROCESSED_DIR / "llm_predictions.csv"
 
 RESULT_COLUMNS = [
@@ -27,50 +29,6 @@ RESULT_COLUMNS = [
     "latency_seconds", "input_tokens", "output_tokens", "run_timestamp", "status",
     "error_message",
 ]
-
-def load_assessments() -> pd.DataFrame:
-    ground_truth_df = pd.read_csv(GROUND_TRUTH_PATH)
-    patients_df = pd.read_csv(PATIENTS_PATH)
-    criteria_df = pd.read_csv(CRITERIA_PATH)
-
-    assessments_df = ground_truth_df.merge(
-        patients_df, on="patient_id", how="left", validate="many_to_one"
-    ).merge(
-        criteria_df,
-        on=["criterion_id", "trial_id", "criterion_type"],
-        how="left",
-        validate="many_to_one",
-    )
-
-    required_columns = [
-        "source_annotation_id", "patient_id", "patient_summary", "trial_id",
-        "trial_title", "criterion_id", "criterion_type", "criterion_text",
-        "ground_truth_label",
-    ]
-    missing_columns = set(required_columns).difference(assessments_df.columns)
-    if missing_columns:
-        raise ValueError(f"Missing required columns: {sorted(missing_columns)}")
-    if len(assessments_df) != EXPECTED_EVALUATION_ROWS:
-        raise ValueError(
-            f"Expected {EXPECTED_EVALUATION_ROWS} locked assessments; found {len(assessments_df)}."
-        )
-    if assessments_df[required_columns].isna().any().any():
-        raise ValueError("One or more required assessment values are missing.")
-    if assessments_df["source_annotation_id"].duplicated().any():
-        raise ValueError("source_annotation_id must be unique.")
-
-    return assessments_df.sort_values("source_annotation_id").reset_index(drop=True)
-
-def build_case(row: pd.Series) -> dict:
-    return {
-        "patient_id": row["patient_id"],
-        "patient_summary": row["patient_summary"],
-        "trial_id": row["trial_id"],
-        "trial_title": row["trial_title"],
-        "criterion_id": row["criterion_id"],
-        "criterion_type": row["criterion_type"],
-        "criterion_text": row["criterion_text"],
-    }
 
 def save_results(records: list[dict], output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -89,7 +47,10 @@ def run_screening(
         raise ValueError("Use either --resume or --overwrite, not both.")
 
     output_path = output_path if output_path.is_absolute() else PROJECT_ROOT / output_path
-    assessments_df = load_assessments()
+    assessments_df = validate_locked_assessments(
+        load_reference_assessments(PROCESSED_DIR),
+        expected_rows=EXPECTED_EVALUATION_ROWS,
+    )
 
     if output_path.exists() and not resume and not overwrite:
         raise FileExistsError(
@@ -138,7 +99,9 @@ def run_screening(
         }
 
         try:
-            result, metadata = screen_one_criterion(build_case(row), model_name=model_name)
+            result, metadata = screen_one_criterion(
+                build_screening_case(row), model_name=model_name
+            )
             record = {
                 **base_record,
                 "predicted_label": result["predicted_label"],

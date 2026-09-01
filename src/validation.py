@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.case_data import load_reference_assessments
 from src.config import (
     DEFAULT_SCREENING_MODEL,
     EXPECTED_EVALUATION_ROWS,
@@ -12,10 +13,6 @@ from src.config import (
     PROMPT_VERSION,
     PROJECT_ROOT,
 )
-
-GROUND_TRUTH_PATH = PROCESSED_DIR / "ground_truth.csv"
-PATIENTS_PATH = PROCESSED_DIR / "patients.csv"
-CRITERIA_PATH = PROCESSED_DIR / "trial_criteria.csv"
 
 VALID_LABELS = {"MET", "NOT_MET", "UNKNOWN", "NOT_APPLICABLE"}
 VALID_STATUSES = {"success", "error"}
@@ -37,24 +34,10 @@ def _parse_evidence_ids(value) -> list[int]:
         raise ValueError("evidence_sentence_ids must be a JSON list of integers.")
     return parsed
 
-def _load_reference_data() -> pd.DataFrame:
-    ground_truth_df = pd.read_csv(GROUND_TRUTH_PATH)
-    patients_df = pd.read_csv(PATIENTS_PATH)
-    criteria_df = pd.read_csv(CRITERIA_PATH)
-
-    return ground_truth_df.merge(
-        patients_df, on="patient_id", how="left", validate="many_to_one"
-    ).merge(
-        criteria_df,
-        on=["criterion_id", "trial_id", "criterion_type"],
-        how="left",
-        validate="many_to_one",
-    )
-
 def validate_predictions(predictions_path: Path, expected_model: str) -> dict:
     predictions_path = predictions_path if predictions_path.is_absolute() else PROJECT_ROOT / predictions_path
     predictions_df = pd.read_csv(predictions_path)
-    reference_df = _load_reference_data()
+    reference_df = load_reference_assessments(PROCESSED_DIR)
 
     errors = []
     checks = {}
