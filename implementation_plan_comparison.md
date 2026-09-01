@@ -152,6 +152,44 @@ Add the following to `evaluation/model_comparison.md`:
 - initial latency and token observations;
 - decision to proceed, revise or stop.
 
+### Completed Smoke Observation
+
+The completed smoke run used configuration `gpt56sol-medium-v2` on the
+15-case manifest. It produced 15/15 successful responses with zero technical
+errors, and verified the expected model, prompt `v2_abstention_rules`, reasoning
+effort `medium`, and output order.
+
+Smoke observations, not final performance estimates:
+
+- Candidate exact agreement: 9/15; GPT-4.1 baseline on the same sample: 9/15.
+- Candidate unsafe `MET`: 0; baseline unsafe case `977` changed from `MET` to candidate `UNKNOWN`.
+- Candidate review cases: 9/15; baseline review cases: 5/15.
+- Input tokens: 11,037; output tokens: 2,029.
+- Median latency: 3.3 seconds; estimated cost: $0.0847.
+- Reference review cases: 6.
+- Candidate correctly routed review cases: 5.
+- Candidate missed-review cases: 1.
+- Smoke review-routing recall: 5/6 (83.3%).
+- Candidate exact `NOT_APPLICABLE` recall: 0/2.
+- Baseline routing of those two `NOT_APPLICABLE` cases: 2/2 sent to review as `UNKNOWN`.
+
+Source annotation `479` was a review-routing disagreement: reference
+`NOT_APPLICABLE`, baseline `UNKNOWN`, candidate `MET`. The candidate rationale
+was that the patient was alive on arrival, so the dead-on-arrival exclusion was
+not triggered. The rationale appears logically plausible, but the locked
+reference remains authoritative for reported evaluation metrics; the case is a
+possible annotation or label-semantics review item.
+
+Decision: **PASS for full-cohort execution** because technical compatibility
+and the obvious-safety gate passed. The 15-case smoke sample does not
+demonstrate superior performance and must not be presented as a performance
+estimate. Only the complete 120-case locked-cohort run supports final model
+comparison.
+
+The full-cohort comparison will report missed-review count and rate,
+review-routing recall where reference `UNKNOWN` or `NOT_APPLICABLE` requires
+review, exact `NOT_APPLICABLE` recall, and review workload difference.
+
 ## Phase 4.3 — Full Locked-Cohort Run
 
 ### Purpose

@@ -2,9 +2,9 @@
 
 ## Status
 
-Phase 4 Increment 1 adds reproducible execution infrastructure only. Candidate
-predictions have **not yet been generated**. No smoke run or full comparison
-run is included in this increment.
+Phase 4 Increment 1 infrastructure is complete. The GPT-5.6 Sol smoke run is
+complete; the full 120-assessment candidate run and final comparison have not
+yet been generated.
 
 ## Configurations
 
@@ -50,9 +50,9 @@ prices. Rates checked on `2026-09-01`:
 | `gpt-4.1` | $2.00 | $8.00 | [OpenAI model pricing](https://developers.openai.com/api/docs/models/gpt-4.1) |
 | `gpt-5.6-sol` | $4.00 | $20.00 | [OpenAI model pricing](https://developers.openai.com/api/docs/models/gpt-5.6-sol) |
 
-Smoke and full-cohort execution, comparison CSV generation, metrics analysis,
-and model selection remain later phases. All evaluation data is public
-synthetic data and all model calls require explicit authorisation.
+Full-cohort execution, comparison CSV generation, metrics analysis, and model
+selection remain later phases. All evaluation data is public synthetic data and
+all model calls require explicit authorisation.
 
 ## Deterministic Smoke Manifest
 
@@ -112,3 +112,52 @@ python -m src.run_screening \
 This 15-case run is a technical compatibility and obvious-safety gate. Its
 metrics must not be presented as comparative model performance; only the
 complete 120-case locked-cohort run supports the final model comparison.
+
+## Completed Smoke Run
+
+The GPT-5.6 Sol smoke run used configuration `gpt56sol-medium-v2` and the
+tracked 15-case manifest. All 15/15 responses completed successfully with zero
+technical errors. The run verified the expected model, prompt
+`v2_abstention_rules`, reasoning effort `medium`, and manifest output order.
+
+The following are smoke observations only, not final performance estimates:
+
+| Metric | GPT-5.6 Sol candidate | GPT-4.1 baseline |
+| --- | ---: | ---: |
+| Exact agreement | 9/15 | 9/15 |
+| Review cases | 9/15 | 5/15 |
+| Unsafe `MET` cases | 0 | 1 known case |
+
+The known baseline unsafe case `977` changed from `MET` to candidate `UNKNOWN`.
+The candidate used 11,037 input tokens and 2,029 output tokens, with median
+latency of 3.3 seconds and estimated cost of $0.0847.
+
+### Smoke Routing Observations
+
+There were 6 reference review cases. The candidate correctly routed 5 of them
+to review and missed 1, giving smoke review-routing recall of 5/6 (83.3%). The
+candidate exact `NOT_APPLICABLE` recall was 0/2. The baseline routed both of
+those `NOT_APPLICABLE` cases to review as `UNKNOWN` (2/2).
+
+Source annotation `479` is a review-routing disagreement:
+
+- Reference: `NOT_APPLICABLE`.
+- Baseline: `UNKNOWN`.
+- Candidate: `MET`.
+- Candidate rationale: the patient was alive on arrival, so the dead-on-arrival exclusion was not triggered.
+
+The rationale appears logically plausible, but the locked reference remains
+authoritative for reported evaluation metrics. This case is flagged for
+possible annotation or label-semantics review.
+
+### Smoke Decision
+
+Decision: **PASS for full-cohort execution**. Technical compatibility and the
+obvious-safety gate passed. The smoke sample does not demonstrate superior
+performance and must not be presented as a performance estimate.
+
+The full-cohort comparison will additionally report missed-review count and
+rate, review-routing recall (reference `UNKNOWN` or `NOT_APPLICABLE` requiring
+review), exact `NOT_APPLICABLE` recall, and the difference in review workload.
+Only the complete 120-case locked-cohort run supports final comparative model
+conclusions.
