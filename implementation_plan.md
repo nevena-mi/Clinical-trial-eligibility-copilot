@@ -354,6 +354,10 @@ Safety-oriented metrics take priority over exact agreement.
 - The recommended model and prompt are justified by evidence.
 - Evaluation limitations are stated clearly.
 
+The detailed implementation, evaluation, documentation and acceptance plan for this phase is maintained in:
+
+`implementation_plan_comparison.md`
+
 ---
 
 ### Phase 5 — Workflow integration and observability

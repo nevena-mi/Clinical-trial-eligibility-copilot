@@ -34,7 +34,12 @@ def _parse_evidence_ids(value) -> list[int]:
         raise ValueError("evidence_sentence_ids must be a JSON list of integers.")
     return parsed
 
-def validate_predictions(predictions_path: Path, expected_model: str) -> dict:
+def validate_predictions(
+    predictions_path: Path,
+    expected_model: str,
+    expected_configuration_id: str | None = None,
+    expected_reasoning_effort: str | None = None,
+) -> dict:
     predictions_path = predictions_path if predictions_path.is_absolute() else PROJECT_ROOT / predictions_path
     predictions_df = pd.read_csv(predictions_path)
     reference_df = load_reference_assessments(PROCESSED_DIR)
@@ -80,6 +85,22 @@ def validate_predictions(predictions_path: Path, expected_model: str) -> dict:
     if not checks["model_consistency"]:
         found_models = sorted(success_df["model"].dropna().unique().tolist())
         errors.append(f"Expected model {expected_model}; found {found_models}.")
+
+    if expected_configuration_id is not None:
+        checks["configuration_consistency"] = (
+            "configuration_id" in success_df
+            and success_df["configuration_id"].eq(expected_configuration_id).all()
+        )
+        if not checks["configuration_consistency"]:
+            errors.append(f"Expected configuration {expected_configuration_id}.")
+
+    if expected_reasoning_effort is not None:
+        checks["reasoning_consistency"] = (
+            "reasoning_effort" in success_df
+            and success_df["reasoning_effort"].eq(expected_reasoning_effort).all()
+        )
+        if not checks["reasoning_consistency"]:
+            errors.append(f"Expected reasoning effort {expected_reasoning_effort}.")
 
     checks["prompt_consistency"] = success_df["prompt_version"].eq(PROMPT_VERSION).all()
     if not checks["prompt_consistency"]:

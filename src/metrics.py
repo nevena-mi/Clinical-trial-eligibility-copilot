@@ -1,17 +1,48 @@
 import argparse
+import math
+from numbers import Integral, Real
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from src.config import PROJECT_ROOT
+from src.pricing import PricingError, estimate_cost, get_model_pricing
 
-INPUT_COST_PER_MILLION = 2.00
-OUTPUT_COST_PER_MILLION = 8.00
 REVIEW_LABELS = {"UNKNOWN", "NOT_APPLICABLE"}
 
 def safe_rate(numerator: int, denominator: int) -> float:
     return numerator / denominator if denominator else np.nan
+
+
+def _integer_token_count(value, field_name: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, (Integral, Real)):
+        raise PricingError(f"Successful {field_name} token counts must be integers.")
+    if not math.isfinite(float(value)) or float(value) < 0 or not float(value).is_integer():
+        raise PricingError(
+            f"Successful {field_name} token counts must be non-negative integers."
+        )
+    return int(value)
+
+
+def estimate_prediction_costs(df: pd.DataFrame) -> pd.Series:
+    """Estimate costs for successful rows using each row's recorded model."""
+    if "model" not in df.columns:
+        raise PricingError("Prediction rows must contain a model for cost estimation.")
+    if df["model"].isna().any() or df["model"].eq("").any():
+        raise PricingError("Every prediction row must contain a model for cost estimation.")
+    for model in df["model"].unique():
+        get_model_pricing(model)
+
+    successful_df = df.loc[df["status"] == "success"]
+    return successful_df.apply(
+        lambda row: estimate_cost(
+            row["model"],
+            _integer_token_count(row["input_tokens"], "input"),
+            _integer_token_count(row["output_tokens"], "output"),
+        ),
+        axis=1,
+    )
 
 def main(predictions_path: str) -> None:
     predictions_file = Path(predictions_path)
@@ -19,6 +50,7 @@ def main(predictions_path: str) -> None:
         predictions_file = PROJECT_ROOT / predictions_file
 
     df = pd.read_csv(predictions_file)
+    estimated_costs = estimate_prediction_costs(df)
     df = df[df["status"] == "success"].copy()
 
     df["agreement_flag"] = (df["predicted_label"] == df["ground_truth_label"]).astype(int)
@@ -26,7 +58,7 @@ def main(predictions_path: str) -> None:
     df["ground_truth_unknown_flag"] = (df["ground_truth_label"] == "UNKNOWN").astype(int)
     df["unknown_recalled_flag"] = ((df["ground_truth_label"] == "UNKNOWN") & (df["predicted_label"] == "UNKNOWN")).astype(int)
     df["review_required_flag"] = df["predicted_label"].isin(REVIEW_LABELS).astype(int)
-    df["estimated_cost_usd"] = (df["input_tokens"] * INPUT_COST_PER_MILLION + df["output_tokens"] * OUTPUT_COST_PER_MILLION) / 1_000_000
+    df["estimated_cost_usd"] = estimated_costs
 
     total = len(df)
     actual_not_met = int((df["ground_truth_label"] == "NOT_MET").sum())
@@ -43,8 +75,8 @@ def main(predictions_path: str) -> None:
         {"metric_name": "Median latency", "value": df["latency_seconds"].median(), "numerator": np.nan, "denominator": np.nan, "unit": "seconds", "definition": "Median API response time per assessment."},
         {"metric_name": "Mean latency", "value": df["latency_seconds"].mean(), "numerator": np.nan, "denominator": np.nan, "unit": "seconds", "definition": "Average API response time per assessment."},
         {"metric_name": "P95 latency", "value": df["latency_seconds"].quantile(0.95), "numerator": np.nan, "denominator": np.nan, "unit": "seconds", "definition": "95th-percentile API response time per assessment."},
-        {"metric_name": "Total estimated API cost", "value": df["estimated_cost_usd"].sum(), "numerator": np.nan, "denominator": np.nan, "unit": "USD", "definition": "Estimated GPT-4.1 text-token cost for this 120-assessment run."},
-        {"metric_name": "Estimated cost per assessment", "value": df["estimated_cost_usd"].mean(), "numerator": np.nan, "denominator": np.nan, "unit": "USD", "definition": "Estimated GPT-4.1 text-token cost per successful assessment."},
+        {"metric_name": "Total estimated API cost", "value": df["estimated_cost_usd"].sum(), "numerator": np.nan, "denominator": np.nan, "unit": "USD", "definition": "Estimated text-token cost using the model recorded for each row."},
+        {"metric_name": "Estimated cost per assessment", "value": df["estimated_cost_usd"].mean(), "numerator": np.nan, "denominator": np.nan, "unit": "USD", "definition": "Estimated text-token cost per successful assessment using row-level model pricing."},
     ]
 
     output_dir = PROJECT_ROOT / "data" / "processed"

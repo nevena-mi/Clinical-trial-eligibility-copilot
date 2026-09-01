@@ -9,7 +9,6 @@ from src.config import (
     STORE_OPENAI_RESPONSES,
     get_openai_client,
 )
-
 from langsmith import traceable
 
 SCREENING_INSTRUCTIONS = """
@@ -98,7 +97,14 @@ def _validate_result(result: dict, case: dict) -> None:
         raise ValueError("Returned rationale is empty.")
 
 @traceable(name="criterion_level_screening", run_type="chain")
-def screen_one_criterion(case: dict, model_name: str | None = None) -> tuple[dict, dict]:
+def screen_one_criterion(
+    case: dict,
+    model_name: str | None = None,
+    *,
+    reasoning_effort: str | None = None,
+    temperature: float | None = SCREENING_TEMPERATURE,
+    configuration_id: str | None = None,
+) -> tuple[dict, dict]:
     required_fields = {
         "patient_id", "patient_summary", "trial_id", "trial_title",
         "criterion_id", "criterion_type", "criterion_text",
@@ -112,14 +118,19 @@ def screen_one_criterion(case: dict, model_name: str | None = None) -> tuple[dic
 
     openai_client = get_openai_client()
     started = perf_counter()
-    response = openai_client.responses.create(
-        model=selected_model,
-        temperature=SCREENING_TEMPERATURE,
-        store=STORE_OPENAI_RESPONSES,
-        instructions=SCREENING_INSTRUCTIONS,
-        input=json.dumps(payload, ensure_ascii=False),
-        text=OUTPUT_FORMAT,
-    )
+    request_kwargs = {
+        "model": selected_model,
+        "store": STORE_OPENAI_RESPONSES,
+        "instructions": SCREENING_INSTRUCTIONS,
+        "input": json.dumps(payload, ensure_ascii=False),
+        "text": OUTPUT_FORMAT,
+    }
+    if temperature is not None:
+        request_kwargs["temperature"] = temperature
+    if reasoning_effort is not None:
+        request_kwargs["reasoning"] = {"effort": reasoning_effort}
+
+    response = openai_client.responses.create(**request_kwargs)
 
     if response.status != "completed":
         raise RuntimeError(f"OpenAI response status: {response.status}")
@@ -133,6 +144,8 @@ def screen_one_criterion(case: dict, model_name: str | None = None) -> tuple[dic
     metadata = {
         "model": selected_model,
         "prompt_version": PROMPT_VERSION,
+        "configuration_id": configuration_id,
+        "reasoning_effort": reasoning_effort,
         "response_id": response.id,
         "latency_seconds": round(perf_counter() - started, 2),
         "input_tokens": getattr(response.usage, "input_tokens", None),
