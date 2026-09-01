@@ -42,8 +42,9 @@ clinical-trial-eligibility-copilot/
 │   └── validation_rules.md
 ├── research/                         # Sector research, risks, use cases
 ├── notebooks/                        # Data exploration notebook
+├── mvp/                              # Streamlit MVP
 ├── src/                              # Screening, validation, metrics code
-├── tests/                            # Smoke-test script
+├── tests/                            # Deterministic and integration tests
 ├── dashboard/                        # Tableau workbook, screenshot, documentation
 ├── poc/                              # n8n workflow, samples, screenshots, documentation
 ├── langsmith/                        # Trace screenshots and monitoring note
@@ -84,6 +85,17 @@ cp .env.example .env
 
 Add your own OpenAI API key and, if using monitoring, LangSmith API key. Never
 commit `.env`.
+
+## Run the Streamlit MVP
+
+```bash
+streamlit run mvp/app.py
+```
+
+The MVP supports dataset cases from the processed synthetic data and custom
+synthetic cases. Screening runs only after an explicit button click. This
+increment displays results and evaluation-only comparisons but does not submit
+anything to n8n.
 
 ## Run the screening POC
 
@@ -172,6 +184,8 @@ review.
 - The POC does not replace clinical judgment, protocol review, or informed
   consent processes.
 - Notion and n8n are demonstration components, not validated clinical systems.
+- The Streamlit MVP uses public synthetic data and does not submit review items
+  to n8n in this increment.
 - Production use would require clinical validation, secure integration,
   privacy and security controls, access management, retention policies, and
   formal governance.

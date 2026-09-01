@@ -3,3 +3,4 @@ langsmith==0.11.1
 pandas==3.0.3
 numpy==2.5.1
 python-dotenv==1.2.3
+streamlit==1.60.0
