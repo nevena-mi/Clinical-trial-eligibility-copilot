@@ -2,10 +2,10 @@
 
 ## Clinical-Trial Eligibility Copilot
 
-**Document purpose:** Internal learning and IHK defence reference  
-**Scenario client:** HelixBridge Clinical Research Network GmbH  
-**Client status:** Fictional company created for this project  
-**Plan date:** 3 September 2026  
+**Document purpose:** Internal learning and IHK defence reference
+**Scenario client:** HelixBridge Clinical Research Network GmbH
+**Client status:** Fictional company created for this project
+**Plan date:** 3 September 2026
 **Delivery model:** Consulting-led implementation
 
 > This document explains how the proposed project would be governed and delivered in a realistic client environment. It is not intended to be presented in full. The presentation should extract only the principal management approach, timeline, responsibilities and decision gates.

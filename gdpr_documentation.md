@@ -2,12 +2,12 @@
 
 ## Clinical-Trial Eligibility Copilot
 
-**Document status:** Client-facing preliminary GDPR assessment  
-**Assessment date:** 3 September 2026  
-**Prepared for:** HelixBridge Clinical Research Network GmbH  
-**Client status:** Fictional company created for this project  
-**System stage:** Synthetic proof of concept / proposed real-data integration  
-**Territorial scope:** Initial deployment in Germany, with possible later use in other EU Member States  
+**Document status:** Client-facing preliminary GDPR assessment
+**Assessment date:** 3 September 2026
+**Prepared for:** HelixBridge Clinical Research Network GmbH
+**Client status:** Fictional company created for this project
+**System stage:** Synthetic proof of concept / proposed real-data integration
+**Territorial scope:** Initial deployment in Germany, with possible later use in other EU Member States
 **Commercial model:** Consulting-led implementation
 
 > This document is a project-level compliance assessment, not legal advice. The client’s Data Protection Officer (DPO) and qualified legal counsel must confirm the controller roles, lawful bases, national-law conditions, retention periods, vendors, and international-transfer mechanisms before real patient data is processed.

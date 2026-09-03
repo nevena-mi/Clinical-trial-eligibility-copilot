@@ -2,11 +2,11 @@
 
 ## Clinical-Trial Eligibility Copilot
 
-**Document status:** Client-facing preliminary assessment  
-**Assessment date:** 3 September 2026  
-**Prepared for:** HelixBridge Clinical Research Network GmbH  
-**Client status:** Fictional company created for this project  
-**Territorial scope:** Germany and potential later use in the European Union  
+**Document status:** Client-facing preliminary assessment
+**Assessment date:** 3 September 2026
+**Prepared for:** HelixBridge Clinical Research Network GmbH
+**Client status:** Fictional company created for this project
+**Territorial scope:** Germany and potential later use in the European Union
 **Commercial model:** Consulting-led implementation
 
 > This is a project-level compliance assessment, not legal advice. HelixBridge must obtain qualified legal and regulatory confirmation before processing real patient data, starting assisted use or materially changing the intended purpose.
