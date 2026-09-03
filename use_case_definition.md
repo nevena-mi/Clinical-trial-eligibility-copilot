@@ -6,13 +6,13 @@
 
 **Sector:** Clinical research and pharmaceutical development
 
-**Target organisation:** A mid-sized multi-site clinical research organisation or clinical research site network managing multiple active studies with a relatively lean recruitment and trial-coordination team.
+**Scenario client:** HelixBridge Clinical Research Network GmbH, a fictional mid-sized multi-site clinical research site network.
 
 **System type:** Generative AI decision-support system with rule-based workflow routing, human review and model monitoring.
 
 **Round 1 decision:** **KEEP**
 
-The industry and use case remain unchanged after Round 1. Round 2 deepens the original concept through a user-facing MVP, expanded business analysis, compliance documentation and a phased deployment plan.
+The industry and use case remain unchanged after Round 1. Round 2 has deepened the original concept through a functional user-facing MVP, explicit human-review submission, model comparison, expanded business analysis, compliance documentation and a phased deployment plan.
 
 ## 2. Business problem statement
 
@@ -34,22 +34,26 @@ The business need is to reduce the administrative preparation and prioritisation
 
 ## 3. Representative company profile
 
-This capstone uses an illustrative mid-sized multi-site clinical research organisation or clinical research site network rather than a named real company.
+This capstone uses HelixBridge Clinical Research Network GmbH, a clearly fictional company, to provide one consistent real-world planning scenario. All organisation characteristics and volumes remain assumptions requiring validation during readiness.
 
 | Attribute | Target profile |
 |---|---|
 | Industry | Clinical research and pharmaceutical development |
-| Organisation size | Mid-sized organisation operating multiple research sites and managing several active clinical studies |
+| Organisation size | Four research sites, 12 coordinators and eight actively recruiting trials |
 | Primary users | Clinical-trial coordinators, recruitment teams and authorised clinical reviewers |
 | Current process | Manual comparison of patient summaries with trial inclusion and exclusion criteria |
-| Data environment | Patient information, trial protocols and operational data held in separate systems or documents |
+| Work volume | Approximately 600 unique patient–trial combinations per month |
+| Pilot scope | One moderate-complexity trial, two sites, four coordinators and approximately 150 reviews per month |
+| Data environment | Approved clinical source environment, protocol repository, CTMS and organisational identity management |
 | Main constraint | Clinical decisions require qualified human review and clear accountability |
 | Main opportunity | Faster preparation, prioritisation and documentation of eligibility assessments |
 | Technology maturity | Existing digital records and trial-management tools, but limited AI-supported criterion assessment |
 
 The target organisation is assumed to have an approved clinical-data environment, defined user roles and an established clinical review process. These production capabilities are not implemented in the current POC.
 
-Trial sponsors and CROs may act as buyers, implementation partners or operational stakeholders, but they do not necessarily have direct access to patient records. Any production workflow must respect the data-access responsibilities of the participating clinical sites.
+The engagement is a consulting-led implementation. HelixBridge owns its data, operational records, production accounts and final decisions. Its Head of Clinical Operations owns the workflow; the provider implements and supports the technology but does not operate the clinical review queue.
+
+Trial sponsors and CROs may act as funding partners or operational stakeholders, but they do not necessarily have direct access to patient records. Any production workflow must respect the data-access responsibilities of participating clinical sites.
 
 ## 4. Proposed AI solution
 
@@ -76,7 +80,7 @@ Exclusion criterion: History of severe psychiatric illness
 
 So `MET` always means “passes this individual criterion,” regardless of whether it is an inclusion or exclusion criterion.
 
-A `MET` label does not by itself mean that a patient is eligible. For example, meeting an exclusion criterion may indicate a potential reason for exclusion.
+A criterion-level `MET` means that the patient passes that individual criterion. It never establishes eligibility for the complete trial.
 
 The output also contains:
 
@@ -95,11 +99,11 @@ The MVP evaluates a supplied patient–trial–criterion combination. It does no
 | Component | Role |
 |---|---|
 | Python screening service | Validates the input and prepares criterion-level model requests |
-| GPT-4.1 | Produces the structured criterion assessment, rationale and evidence references |
+| Configured model service | GPT-4.1 powers the current MVP; GPT-5.6 Sol was evaluated as a candidate but performed worse on the locked synthetic cohort |
 | n8n | Receives screening results and applies review-routing logic |
 | n8n Data Table | Stores review-queue records in the POC |
 | Notion | Provides a demonstration human-review queue |
-| LangSmith | Records model traces, prompt metadata, outputs, latency and token usage |
+| LangSmith | Provides development traces for synthetic evaluation; production observability requires separate approval |
 | User-facing MVP | Allows a user to submit or select a screening case and inspect the result |
 
 ### System classification by function
@@ -118,23 +122,24 @@ The proposed solution combines:
 2. Required input fields are validated and normalised.
 3. The AI compares the supplied patient evidence with one criterion.
 4. The model returns a structured label, rationale and evidence references.
-5. The workflow checks whether the case requires priority review.
-6. `UNKNOWN` and `NOT_APPLICABLE` results are routed to the review queue.
-7. An authorised clinical reviewer examines the assessment and original evidence.
+5. An authorised coordinator examines every assessment against the original evidence and confirms or overrides it.
+6. `UNKNOWN`, `NOT_APPLICABLE`, conflicting and otherwise designated high-risk cases receive additional escalation to a senior reviewer or investigator.
+7. Technical and integration failures remain separate from clinical-review routing.
 8. Only a human-confirmed outcome may be written back to an approved clinical system.
 9. Model calls, routing events and reviewer actions are logged under an approved retention policy.
 
-### Round 2 MVP boundary
+### Round 2 MVP status and boundary
 
-The MVP will implement the user-facing criterion assessment and basic error handling using public synthetic data.
+The MVP implements user-facing criterion assessment, controlled error handling and explicit queue submission using public synthetic data.
 
-The existing POC demonstrates:
+The completed demonstration includes:
 
 - structured screening output;
 - n8n routing;
 - review-queue creation;
 - Notion records;
 - LangSmith model monitoring.
+- session-state protection against stale results and duplicate queue submission.
 
 It does not implement live EHR, clinical data warehouse or CTMS integration. Notion is a demonstration queue rather than a validated clinical workflow system.
 
@@ -148,13 +153,12 @@ All AI-generated assessments must remain inspectable. No clinical action, final 
 
 ### Priority clinical-review routing
 
-A case must be routed to a priority clinical-review queue when:
+A case receives additional priority escalation when:
 
 - the model returns `UNKNOWN`;
 - the model returns `NOT_APPLICABLE`;
-- relevant patient evidence is missing;
-- patient information is contradictory;
-- an exclusion-related concern requires clinical interpretation;
+- missing or contradictory evidence results in an uncertain output;
+- an exclusion-related concern meets a clinically approved escalation rule;
 - configured safety or uncertainty rules are triggered.
 
 ### Validation and technical failures
@@ -193,19 +197,20 @@ The following targets are proposed for a controlled pilot. They are not claims a
 
 | Outcome | Measure | Proposed pilot target |
 |---|---|---:|
-| Reliable escalation | `UNKNOWN` and `NOT_APPLICABLE` cases correctly routed to human review | 100% |
+| Reliable escalation | `UNKNOWN`, `NOT_APPLICABLE`, invalid and failed results safely handled | 100% |
 | Human control | Cases that trigger a clinical action without authorised human confirmation | 0 |
-| Structured transparency | Completed assessments containing a valid label, rationale, evidence references, model and prompt metadata | 100% |
-| Uncertainty recognition | Recall for reference `UNKNOWN` cases on the controlled evaluation dataset | At least 90% |
-| Safety performance | Unsafe positive matches on the Round 2 holdout dataset | 0 before pilot recommendation; every occurrence must be investigated |
+| Structured transparency | Valid outputs with complete evidence and configuration provenance | At least 95% |
+| Review-routing performance | Recall for cases requiring additional review | Threshold approved clinically before pilot execution |
+| Safety performance | Unsafe-error rate | Threshold approved clinically before pilot execution; every occurrence investigated |
+| Safety governance | Unresolved critical safety events | 0 |
 
-The Round 2 holdout is an internal comparison set rather than a completely untouched external validation dataset.
+The locked synthetic evaluation cohort is an internal comparison set rather than a completely untouched external validation dataset.
 
 ### Workflow reliability
 
 | Outcome | Measure | Proposed pilot target |
 |---|---|---:|
-| Request reliability | Valid requests completed without unhandled system or integration errors | At least 99% |
+| Request reliability | Valid requests completed without unhandled system or integration errors | At least 95% |
 | Failure visibility | Detected failures presented as successful assessments or successful queue submissions | 0 |
 | Routing reliability | Review-required cases that create or clearly fail to create the expected queue event | 100% |
 
@@ -215,6 +220,7 @@ The Round 2 holdout is an internal comparison set rather than a completely untou
 |---|---|---:|
 | Reviewer usefulness | Assessments rated useful or very useful on a defined reviewer survey scale | At least 80% |
 | Evidence usefulness | Reviewers able to locate the cited evidence without re-reading the complete patient summary | To be established during pilot discovery |
+| Adoption | Assigned trained users actively following the workflow | At least 80% |
 
 The reviewer sample size and rating scale must be defined before the controlled pilot begins.
 
@@ -224,6 +230,7 @@ The reviewer sample size and rating scale must be defined before the controlled 
 |---|---|---:|
 | Screening efficiency | Median coordinator preparation time for a complete patient–trial prescreening review compared with the manual baseline | At least 25% reduction |
 | Review workload | Time spent reviewing routed cases and correcting model outputs | Measured and reported alongside time savings |
+| Privacy and security | Material breach or unresolved critical finding | 0 |
 
 ### Pilot decision principle
 
@@ -231,26 +238,28 @@ A pilot should proceed towards broader deployment only if it demonstrates measur
 
 A fast model response alone is not sufficient evidence of business value. The pilot must measure the complete coordinator workflow, including review-queue effort and correction of model outputs.
 
-## 9. Round 1 evidence
+## 9. Current synthetic evaluation evidence
 
-Round 1 evaluated GPT-4.1 on 120 locked criterion-level assessments derived from public synthetic TrialGPT data.
+The project evaluated GPT-4.1 and GPT-5.6 Sol on the same 120 locked criterion-level assessments derived from public synthetic TrialGPT data.
 
-| Metric | Round 1 result |
-|---|---:|
-| Exact agreement with reference labels | 72.5% |
-| Unsafe `MET` rate | 5.9% (1 of 17 reference `NOT_MET` cases) |
-| `UNKNOWN` recall | 92.3% (48 of 52 cases) |
-| Human-review routing rate | 59.2% |
-| Median model latency | 1.01 seconds |
-| Estimated model cost per assessment | Approximately $0.0021 |
+| Metric | GPT-4.1 baseline | GPT-5.6 Sol candidate |
+|---|---:|---:|
+| Exact agreement with reference labels | 72.5% | 65.0% |
+| Unsafe `MET` cases among 17 reference `NOT_MET` cases | 1 | 1 |
+| `UNKNOWN` recall | 48/52 | 51/52 |
+| Human-review routing rate | 59.2% | 72.5% |
+| Median model latency | 1.01 seconds | 2.48 seconds |
+| Estimated cost for 120 assessments | $0.2556 | $0.5957 |
 
 The estimated model cost reflects the token-pricing assumptions used at the time of the Round 1 calculation.
 
-These results indicate that the model can recognise many cases with insufficient evidence and can produce structured, inspectable outputs.
+These results show that both models can produce structured, inspectable outputs and recognise many cases with insufficient evidence. They also show that selecting a more expensive model did not improve overall agreement or remove unsafe errors.
 
 However, the unsafe positive result and substantial review rate show that the system is not suitable for autonomous eligibility decisions. Human review, safety-focused evaluation and workflow-level validation remain mandatory.
 
-The unsafe `MET` result was calculated from only 17 reference `NOT_MET` cases. The observed 5.9% should therefore not be interpreted as a stable estimate of production safety performance.
+Each unsafe result was calculated from only 17 reference `NOT_MET` cases. The observed rate must not be interpreted as a stable estimate of production safety performance.
+
+GPT-4.1 remains the configured MVP model. Prompt improvement is planned, but no improved figure will be reported until a new frozen prompt has been evaluated on the complete locked cohort. Because this cohort has been used repeatedly during development, it is a locked synthetic evaluation cohort rather than a fully untouched holdout. The pilot requires a separate, independently adjudicated local validation set.
 
 ## 10. Out-of-scope boundaries
 
@@ -277,7 +286,7 @@ The MVP is a decision-support demonstration using public synthetic data. It must
 
 ## 11. Data boundaries
 
-Round 1 and the initial Round 2 MVP use public synthetic TrialGPT-derived data.
+The capstone MVP and model evaluations use public synthetic TrialGPT-derived data.
 
 The project does not require or authorise:
 
@@ -309,16 +318,6 @@ The applicable legal basis and safeguards would require confirmation by the orga
 
 No substantive teaching-staff feedback requiring a sector or use-case change was recorded. The KEEP decision was based on the demonstrated relevance of the business problem, feasibility of the criterion-level prototype and the identified need for deeper safety, business and compliance analysis.
 
-An additional market-evidence dashboard was identified as a useful extension. It should use cited real-world evidence to examine:
-
-- existing AI-supported patient–trial matching and prescreening products;
-- when relevant solutions entered the market;
-- organisations using or partnering around these solutions;
-- reported operational or recruitment benefits;
-- remaining market and implementation gaps.
-
-This dashboard will be developed after the core MVP and required Round 2 deliverables are verified.
-
 ### Round 1 evidence demonstrated
 
 - a relevant business problem;
@@ -340,17 +339,16 @@ Round 2 retains the same industry and use case but deepens the project through:
 4. systematic assessment of regulatory, technical, ethical and operational risks;
 5. EU AI Act and GDPR analysis based on the proposed intended use and production data flow;
 6. a realistic AI product-management and client-pilot plan with user stories, acceptance criteria, decision gates and a Definition of Done;
-7. a phased POC-to-pilot-to-production strategy defining stakeholders, KPIs and commercialisation options;
-8. a cited market-evidence dashboard after the core deliverables are complete.
+7. a phased POC-to-pilot-to-production strategy defining stakeholders, KPIs and commercialisation options.
 
 The objective is not to claim clinical readiness. It is to determine whether the use case is sufficiently valuable, safe, transparent and governable to justify a controlled pilot.
 
 ## 13. Final use-case statement
 
-The Clinical-Trial Eligibility Copilot is a human-reviewed AI decision-support system that compares a supplied patient summary with an individual clinical-trial criterion.
+The Clinical-Trial Eligibility Copilot is a human-reviewed AI decision-support system proposed for HelixBridge Clinical Research Network GmbH. It compares a supplied patient summary with an individual clinical-trial criterion.
 
-The current MVP processes public synthetic information only. It produces structured labels, rationales and evidence references, routes uncertain cases to authorised reviewers and records model behaviour for inspection.
+The current MVP processes public synthetic information only. It produces structured labels, rationales and evidence references. Every result requires human confirmation; uncertain and designated high-risk cases receive additional escalation.
 
-A future production deployment could process minimum-necessary authorised patient information only after the required governance, legal, security, integration and validation conditions are met.
+A future production deployment could process minimum-necessary, preferably pseudonymised patient information in a client-controlled or client-approved EU environment only after the required governance, legal, security, integration and validation conditions are met.
 
 Its purpose is to help clinical-research teams prepare, prioritise and document criterion-level eligibility reviews more efficiently while preserving human clinical judgement, traceability and accountability.
