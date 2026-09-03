@@ -239,6 +239,7 @@ def run_screening(
                     else SCREENING_TEMPERATURE
                 ),
                 configuration_id=selected_configuration_id,
+                prompt_version=selected_prompt,
             )
             record = {
                 **base_record,
@@ -266,7 +267,7 @@ def run_screening(
                 "configuration_id": selected_configuration_id,
                 "reasoning_effort": selected_reasoning,
                 "model": model_name,
-                "prompt_version": PROMPT_VERSION,
+                "prompt_version": selected_prompt,
                 "response_id": "",
                 "latency_seconds": None,
                 "input_tokens": None,

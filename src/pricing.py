@@ -32,6 +32,13 @@ PRICING = {
         source="https://developers.openai.com/api/docs/models/gpt-5.6-sol",
         checked_date="2026-09-01",
     ),
+    "gpt-5.6-terra": ModelPricing(
+        model="gpt-5.6-terra",
+        input_usd_per_million=2.00,
+        output_usd_per_million=12.00,
+        source="https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+        checked_date="2026-09-03",
+    ),
 }
 
 

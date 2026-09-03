@@ -70,6 +70,26 @@ def test_candidate_screening_request_uses_reasoning_without_temperature(monkeypa
     assert metadata["response_id"] == "response-test"
 
 
+def test_terra_screening_request_uses_reasoning_without_temperature(monkeypatch):
+    client = _mock_client()
+    monkeypatch.setattr(screening, "get_openai_client", lambda: client)
+
+    _, metadata = screening.screen_one_criterion(
+        CASE,
+        model_name="gpt-5.6-terra",
+        reasoning_effort="medium",
+        temperature=None,
+        configuration_id="gpt56terra-medium-v2",
+    )
+
+    request = client.responses.create.call_args.kwargs
+    assert request["model"] == "gpt-5.6-terra"
+    assert request["reasoning"] == {"effort": "medium"}
+    assert "temperature" not in request
+    assert metadata["configuration_id"] == "gpt56terra-medium-v2"
+    assert metadata["reasoning_effort"] == "medium"
+
+
 def test_model_configurations_are_registered():
     candidate = get_model_configuration("gpt56sol-medium-v2")
 
@@ -77,6 +97,13 @@ def test_model_configurations_are_registered():
     assert candidate.prompt_version == "v2_abstention_rules"
     assert candidate.reasoning_effort == "medium"
     assert candidate.temperature is None
+
+    terra = get_model_configuration("gpt56terra-medium-v2")
+    assert terra.configuration_id == "gpt56terra-medium-v2"
+    assert terra.model == "gpt-5.6-terra"
+    assert terra.prompt_version == "v2_abstention_rules"
+    assert terra.reasoning_effort == "medium"
+    assert terra.temperature is None
 
 
 def test_unknown_model_configuration_is_rejected():
@@ -87,6 +114,11 @@ def test_unknown_model_configuration_is_rejected():
 def test_pricing_is_model_specific_and_unknown_models_fail():
     assert get_model_pricing("gpt-4.1").input_usd_per_million == 2
     assert get_model_pricing("gpt-5.6-sol").output_usd_per_million == 20
+    terra_pricing = get_model_pricing("gpt-5.6-terra")
+    assert terra_pricing.input_usd_per_million == 2
+    assert terra_pricing.output_usd_per_million == 12
+    assert terra_pricing.checked_date == "2026-09-03"
+    assert estimate_cost("gpt-5.6-terra", 10, 8) == pytest.approx(0.000116)
     assert estimate_cost("gpt-5.6-sol", 10, 8) == pytest.approx(0.0002)
 
     with pytest.raises(PricingError, match="No pricing"):

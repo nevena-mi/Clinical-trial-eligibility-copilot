@@ -1,0 +1,5 @@
+configuration_id,model,successful_rows,exact_agreement_count,exact_agreement_rate,unsafe_met_count,reference_not_met_count,unknown_recall_count,reference_unknown_count,not_applicable_recall_count,reference_not_applicable_count,review_routing_recall_count,reference_review_count,review_routing_recall_rate,missed_review_count,review_workload_count,review_workload_rate,median_latency_seconds,input_tokens,output_tokens,estimated_cost_usd
+gpt41-v2,gpt-4.1,120,87,0.725,1,17,48,52,3,19,60,71,0.8450704225352113,11,71,0.5916666666666667,1.01,88720,9776,0.255648
+gpt41-v3,gpt-4.1,120,93,0.775,0,17,48,52,8,19,67,71,0.9436619718309859,4,79,0.6583333333333333,1.295,134664,9439,0.34484
+gpt56sol-medium-v2,gpt-5.6-sol,120,78,0.65,1,17,51,52,3,19,63,71,0.8873239436619719,8,87,0.725,2.475,88584,12067,0.595676
+gpt56terra-medium-v2,gpt-5.6-terra,120,83,0.6916666666666667,1,17,52,52,3,19,66,71,0.9295774647887324,5,86,0.7166666666666667,1.905,88464,10251,0.29994

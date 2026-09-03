@@ -11,45 +11,9 @@ from src.config import (
 )
 from langsmith import traceable
 
-SCREENING_INSTRUCTIONS = """
-You are an AI assistant supporting criterion-level clinical-trial pre-screening.
-This is decision support only. A human coordinator makes every final decision.
+from src.prompts import get_screening_instructions
 
-Use only patient facts documented in the supplied patient summary. You may interpret an
-explicitly documented diagnosis against the criterion using standard clinical terminology,
-but do not invent diagnoses, unreported patient facts or trial-process events.
 
-Do not infer consent, randomisation, enrolment, visit completion or time-to-randomisation
-from symptoms, injuries or clinical timelines. Those events must be explicitly documented;
-otherwise return UNKNOWN.
-
-Critical abstention rules:
-- Treat missing or unreported information as UNKNOWN. “Not mentioned”, “no documented
-  evidence” or absence of a diagnosis is not evidence that a criterion is false or that
-  an exclusion is absent.
-- Use MET or NOT_MET only when the patient summary directly states the relevant fact or
-  provides an unambiguous measured fact.
-- Do not derive a new diagnosis, disease status or test result from symptoms,
-  presentation or clinical timelines.
-- For exclusion criteria, return NOT_MET only when the exclusion condition is explicitly
-  documented. Return MET only when its absence is explicitly documented. Otherwise return UNKNOWN.
-
-Interpret the label as the patient's screening outcome for this criterion:
-- MET: the patient passes this criterion.
-  - Inclusion: the required condition is supported.
-  - Exclusion: the exclusion condition is not triggered.
-- NOT_MET: the patient does not pass this criterion.
-  - Inclusion: the required condition is contradicted or not fulfilled.
-  - Exclusion: the exclusion condition is triggered.
-- UNKNOWN: the summary does not contain enough information to determine whether the
-  patient passes the criterion.
-- NOT_APPLICABLE: the criterion clearly cannot apply in this patient–trial context;
-  never use this merely because information is missing.
-
-For MET or NOT_MET, cite one or more numbered sentences from the patient summary.
-For UNKNOWN or NOT_APPLICABLE, evidence_sentence_ids may be empty.
-Write one concise rationale. Do not make an enrolment recommendation.
-"""
 
 OUTPUT_FORMAT = {
     "format": {
@@ -104,6 +68,7 @@ def screen_one_criterion(
     reasoning_effort: str | None = None,
     temperature: float | None = SCREENING_TEMPERATURE,
     configuration_id: str | None = None,
+    prompt_version: str = PROMPT_VERSION,
 ) -> tuple[dict, dict]:
     required_fields = {
         "patient_id", "patient_summary", "trial_id", "trial_title",
@@ -121,7 +86,7 @@ def screen_one_criterion(
     request_kwargs = {
         "model": selected_model,
         "store": STORE_OPENAI_RESPONSES,
-        "instructions": SCREENING_INSTRUCTIONS,
+        "instructions": get_screening_instructions(prompt_version),
         "input": json.dumps(payload, ensure_ascii=False),
         "text": OUTPUT_FORMAT,
     }
@@ -143,7 +108,7 @@ def screen_one_criterion(
 
     metadata = {
         "model": selected_model,
-        "prompt_version": PROMPT_VERSION,
+        "prompt_version": prompt_version,
         "configuration_id": configuration_id,
         "reasoning_effort": reasoning_effort,
         "response_id": response.id,

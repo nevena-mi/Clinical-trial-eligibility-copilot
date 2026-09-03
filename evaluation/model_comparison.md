@@ -161,3 +161,23 @@ rate, review-routing recall (reference `UNKNOWN` or `NOT_APPLICABLE` requiring
 review), exact `NOT_APPLICABLE` recall, and the difference in review workload.
 Only the complete 120-case locked-cohort run supports final comparative model
 conclusions.
+
+
+## GPT-4.1 v3 prompt evaluation
+
+The safety-focused `v3_safety_and_label_rules` prompt was evaluated on the same locked 120-assessment synthetic cohort.
+
+| Metric | GPT-4.1 v2 | GPT-4.1 v3 |
+|---|---:|---:|
+| Exact agreement | 87/120 (72.5%) | 93/120 (77.5%) |
+| Review-routing recall | 60/71 (84.5%) | 67/71 (94.4%) |
+| Missed-review cases | 11 | 4 |
+| `NOT_APPLICABLE` recall | 3/19 (15.8%) | 8/19 (42.1%) |
+| Review workload | 71/120 (59.2%) | 79/120 (65.8%) |
+| Unsafe `MET` cases | 1/17 | 0/17 |
+| Median latency | 1.01 seconds | 1.295 seconds |
+| Estimated cost | $0.2556 | $0.3448 |
+
+The v3 prompt produced the strongest tested quality result. It removed the observed unsafe `MET`, improved exact agreement and substantially reduced missed-review cases, at the cost of moderately higher review workload, latency and token usage.
+
+Residual failures remain. Cases 481 and 783 incorrectly treated missing residency information as decisive evidence. The result therefore supports further controlled development, not autonomous eligibility or enrolment decisions.
